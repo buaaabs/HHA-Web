@@ -1,0 +1,95 @@
+/* 
+* @Author: sxf
+* @Date:   2014-08-04 16:17:43
+* @Last Modified by:   sxf
+* @Last Modified time: 2014-08-07 18:22:08
+*/
+
+.body-div {
+	margin-top: 60px;
+}
+
+
+#login_div {
+	margin-top: 60px;
+}
+
+#lean_overlay {
+			    position: fixed;
+			    z-index:100;
+			    text-align:center;
+			    top: 0px;
+			    left: 0px;
+			    height:100%;
+			    width:100%;
+			    background: #000;
+			    display: none;
+			}
+
+#OpenWindow {
+	background: none repeat scroll 0 0 #FFFFFF;
+	border-radius: 15px 15px 15px 15px; 
+	box-shadow: 0 0 4px rgba(0, 0, 0, 0.7); 
+	display: none; 
+	padding-bottom: 2px; 
+	width: 600px; 
+	height: 500px;
+	z-index: 11000; 
+	opacity: 1; 
+	position: fixed; 
+	margin-top: -30px; 
+} 
+
+.register_form {
+	padding-left: 160px;
+	padding-top: 40px;
+	padding-right: 130px;
+	padding-bottom: 100px;
+}
+
+.register_logo {
+	padding-left: 30px;
+	padding-top: 20px;
+}
+.master {
+    position: relative;
+}
+
+.master-show {
+	font-family:"微软雅黑";
+	width: 100%;
+	text-align: center;
+	position: absolute;
+	bottom: 30px;
+    left: 0px;
+    z-index: 10;
+    text-shadow: 1px 1px #40730e;
+	color:#92bf30;
+    font-weight: bold; 
+
+}
+
+.article-all {
+	font-family:"微软雅黑";
+}
+
+.article-main {
+	font-size: 16px;
+}
+
+#sidebarWrap {
+    height: 400px;
+    width: 210px;
+    float: right;
+    position: relative;
+    box-shadow: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+#sidebar {
+    width: 200px;
+    height: 300px;
+    position: absolute;
+}
