@@ -47,16 +47,6 @@ try {
         return new Phalcon\Validation();
     });
 
-    $di->set('security', function(){
-
-        $security = new Phalcon\Security();
-
-        //Set the password hashing factor to 12 rounds
-        $security->setWorkFactor(12);
-
-        return $security;
-    }, true);
-
     //Setup a base URI so that all generated URIs include the "tutorial" folder
     $di->set('url', function() use($config){
         $url = new \Phalcon\Mvc\Url();

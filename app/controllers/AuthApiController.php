@@ -1,13 +1,13 @@
-﻿<?php
+<?php
 /* 
 * @Author: sxf
 * @Date:   2014-08-18 14:11:18
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-19 14:27:08
+* @Last Modified time: 2014-08-19 11:56:55
 */
 
 class AuthApiController extends \Phalcon\Mvc\Controller
-	{
+{
 	public function initialize()
 	{
 		
@@ -18,7 +18,6 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 		if ($this->request->isPost()==true) {
 			$ans = [];
 			try {
-				$validation = new AuthValidation();
 				$messages = $validation->validate($_POST);
 				if (count($messages)) {
 				    foreach ($messages as $message) {
@@ -37,7 +36,7 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 					throw new BaseException('用户名找不到',401);
 				}
 
-				if ($this->security->checkHash($user->password, $password)) {
+				if ($user->password == $password) {
 					$ans['id'] = $user->id;
 					echo json_encode($ans);
 				} else {
@@ -57,7 +56,6 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 		if ($this->request->isPost()==true) {
 			$ans = [];
 			try {
-				$validation = new AuthValidation();
 				$messages = $validation->validate($_POST);
 				if (count($messages)) {
 				    foreach ($messages as $message) {
@@ -66,11 +64,10 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 				}
 
 				$user = new User();
-				$password = $this->request->getPost("password");
 				$user->username = 
 					$this->request->getPost("username");
-				$user->password =
-					$this->security->hash($password);
+				$user->password = 
+					$this->request->getPost("password");
 				$success = $user->save();
 
 				if ($success) {
@@ -94,34 +91,7 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 		if ($this->request->isPut()) {
 			$ans = [];
 			try {
-				//登陆验证
-
-				$validation = new AuthUpdataValidation();
-				$messages = $validation->validate($_PUT);
-				if (count($messages)) {
-				    foreach ($messages as $message) {
-				        throw new BaseException($message,102);
-				    }
-				}
-
-				$user_ext = new UserExt();
-				$user_ext->realname = $this->request->getPut('realname');
-				$user_ext->phone = $this->request->getPut('phone');
-				$user_ext->birthday = $this->request->getPut('birthday');
-				$user_ext->sex = $this->request->getPut('sex');
-				$user_ext->email = $this->request->getPut('email');
-
-				$date = explode('-',$user_ext->birthday);
-				if (!checkdate($date[1], $date[2], $date[0])) {  //检查时间是否合法
-					throw new BaseException('日期不合法',602);
-				}
-				$z1=strtotime (date("y-m-d")); //当前时间
-				$z2=strtotime ($user_ext->birthday);  //输入时间
-				if ($z2 >= $z1) {
-					throw new BaseException('这是未来的某一天',603);
-				}
-
-
+				
 			} catch (BaseException $e) {
 				
 			}		
