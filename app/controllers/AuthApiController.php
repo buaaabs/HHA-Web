@@ -1,16 +1,16 @@
-﻿<?php
+<?php
 /* 
 * @Author: sxf
 * @Date:   2014-08-18 14:11:18
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-19 14:27:08
+* @Last Modified time: 2014-08-21 15:53:33
 */
 
 class AuthApiController extends \Phalcon\Mvc\Controller
 	{
 	public function initialize()
 	{
-		
+		$this->response->setHeader("Content-Type", "application/json; charset=utf-8");
 	}
 
 	public function loginAction()
@@ -37,7 +37,7 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 					throw new BaseException('用户名找不到',401);
 				}
 
-				if ($this->security->checkHash($user->password, $password)) {
+				if ($this->security->checkHash($password,$user->password)) {
 					$ans['id'] = $user->id;
 					echo json_encode($ans);
 				} else {
@@ -84,6 +84,13 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 			} catch (BaseException $e) {
 				$ans['id'] = -1;
 				$e->putError($ans);
+				echo json_encode($ans);
+			} catch (Exception $ee) {
+				$ans['id'] = -1;
+				$ans['error'] = $ee->getCode();
+				$ans['error-message'] = $ee->getMessage();
+				$ans['error-file'] = $ee->getFile();
+				$ans['error-Line'] = $ee->getLine();
 				echo json_encode($ans);
 			}
 		}
