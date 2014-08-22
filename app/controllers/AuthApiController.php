@@ -17,6 +17,7 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 	{
 		if ($this->request->isPost()==true) {
 			$ans = [];
+            $validation=new AuthValidation();
 			try {
 				$messages = $validation->validate($_POST);
 				if (count($messages)) {
@@ -56,6 +57,7 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 		if ($this->request->isPost()==true) {
 			$ans = [];
 			try {
+                $validation=new AuthUpdataValidation();
 				$messages = $validation->validate($_POST);
 				if (count($messages)) {
 				    foreach ($messages as $message) {
