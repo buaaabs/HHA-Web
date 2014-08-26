@@ -57,6 +57,17 @@ try {
         return $security;
     }, true);
 
+    $di['router'] = function() {
+
+        //Use the annotations router
+        $router = new \Phalcon\Mvc\Router\Annotations(false);
+
+        //Read the annotations from ProductsController if the uri starts with /api/products
+        $router->addResource('UserApi', '/UserApi');
+
+        return $router;
+    };
+
     //Setup a base URI so that all generated URIs include the "tutorial" folder
     $di->set('url', function() use($config){
         $url = new \Phalcon\Mvc\Url();
@@ -77,8 +88,8 @@ try {
 
     //     $security = new Security($di);
 
-    //     *
-    //      * We listen for events in the dispatcher using the Security plugin
+        
+    //     // * We listen for events in the dispatcher using the Security plugin
          
     //     $eventsManager->attach('dispatch', $security);
 

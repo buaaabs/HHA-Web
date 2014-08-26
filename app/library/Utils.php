@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-08 13:17:35
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-18 15:17:28
+* @Last Modified time: 2014-08-21 17:17:39
 */
 
 /**
@@ -76,6 +76,14 @@ class Utils
 		} 
 
 		return ImagePng($img); 
+	}
+
+	public static function makeError($error, &$value)
+	{
+		$value['error'] = $error->getCode();
+		$value['error-message'] = $error->getMessage();
+		$value['error-file'] = $error->getFile();
+		$value['error-Line'] = $error->getLine();
 	}
 
 }
