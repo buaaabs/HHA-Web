@@ -1,0 +1,145 @@
+<?php
+/* 
+* @Author: sxf
+* @Date:   2014-08-25 16:31:40
+* @Last Modified by:   sxf
+* @Last Modified time: 2014-08-25 19:05:31
+*/
+
+/**
+* 
+*/
+class AuthApiController extends \Phalcon\Mvc\Controller
+{
+
+	/**
+	 * @Post('/AuthGroup')
+	 */
+	public function authgroupAction()
+	{
+<<<<<<< HEAD
+		$ans = [];
+		try {
+			$name = $this->request->getPost('name');
+			$auth_group = new AuthGroup();
+			$auth_group->name = $name;
+			if ($auth_group->save() == false) {
+				throw new Exception('数据库异常', 102);
+			}
+			$ans['ret'] = 0;
+		} catch(Exception $e) {
+			Utils.makeError($e, $ans);
+		} finally {
+			echo json_encode($ans);
+=======
+		if ($this->request->isPost()==true) {
+			$ans = [];
+            $validation=new AuthValidation();
+			try {
+				$messages = $validation->validate($_POST);
+				if (count($messages)) {
+				    foreach ($messages as $message) {
+				        throw new BaseException($message,102);
+				    }
+				}
+
+				$username = $this->request->getPost("username");
+				$password = $this->request->getPost("password");
+
+				$user = User::findFirst([
+				    "username = :str:",
+				    "bind" => ["str" => $username]
+				]);
+				if (is_null($user)) {
+					throw new BaseException('用户名找不到',401);
+				}
+
+				if ($user->password == $password) {
+					$ans['id'] = $user->id;
+					echo json_encode($ans);
+				} else {
+					throw new BaseException('密码不正确',402);
+				}
+			} catch (BaseException $e) {
+				$ans['id'] = -1;
+				$e->putError($ans);
+				echo json_encode($ans);
+			} 
+
+>>>>>>> d323b2727fbcd5580b067d801476367b41214d45
+		}
+	}
+
+	/**
+	 * @Delete('/AuthGroup/{id:int}')
+	 */
+	public function del_authgroupAction($id)
+	{
+<<<<<<< HEAD
+		$ans = [];
+		try {
+			$auth_group = AuthGroup::findFirst($id);
+			if ($auth_group->delete() == false) {
+				throw new Exception('数据库异常', 102);
+=======
+		if ($this->request->isPost()==true) {
+			$ans = [];
+			try {
+                $validation=new AuthUpdataValidation();
+				$messages = $validation->validate($_POST);
+				if (count($messages)) {
+				    foreach ($messages as $message) {
+				        throw new BaseException($message,102);
+				    }
+				}
+
+				$user = new User();
+				$user->username = 
+					$this->request->getPost("username");
+				$user->password = 
+					$this->request->getPost("password");
+				$success = $user->save();
+
+				if ($success) {
+					$ans['id'] = $user->id;
+					echo json_encode($ans);
+				} else {
+					foreach ($user->getMessages() as $message) {
+						throw new BaseException($success, 100);
+					}
+				}
+			} catch (BaseException $e) {
+				$ans['id'] = -1;
+				$e->putError($ans);
+				echo json_encode($ans);
+>>>>>>> d323b2727fbcd5580b067d801476367b41214d45
+			}
+			$ans['ret'] = 0;
+		} catch(Exception $e) {
+			Utils.makeError($e, $ans);
+		} finally {
+			echo json_encode($ans);
+		}
+	}
+
+	/**
+	 * @Put('/AuthGroup/{id:int}')
+	 */
+	public function update_authgroupAction($id)
+	{
+		$ans = [];
+		try {
+			$auth_group = AuthGroup::findFirst($id);
+			$auth_group->name = $this->request->getPut('name');
+			if ($auth_group->save == false) {
+				throw new Exception('数据库异常', 102);
+			}
+			$ans['ret'] = 0;
+		} catch(Exception $e) {
+			Utils.makeError($e, $ans);
+		} finally {
+			echo json_encode($ans);
+		}
+	}
+}
+?>
