@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-26 15:21:12
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-26 19:01:52
+* @Last Modified time: 2014-08-26 19:19:32
 */
 
 
@@ -82,10 +82,8 @@ class UserDataController extends \Phalcon\Mvc\Controller
 		$ans = [];
 		try {
 			if ($this->request->isPut()) {
+				$this->request->getPut('name')
 
-
-
-				
 			}
 		} catch (Exception $e) {
 			Utils.makeError($ans,$e);
