@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-08 13:17:35
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-18 15:17:28
+* @Last Modified time: 2014-08-28 18:25:50
 */
 
 /**
@@ -11,8 +11,7 @@
 */
 class Utils
 {
-	
-	public static getIP()
+	public static function getIP()
 	{
 		if (@$_SERVER["HTTP_X_FORWARDED_FOR"]) 
 		$ip = $_SERVER["HTTP_X_FORWARDED_FOR"]; 
@@ -31,7 +30,7 @@ class Utils
 		return $ip; 
 	}
 
-	public static make()
+	public static function make()
 	{
 
 		$sessionvar = 'vdcode'; //Session变量名称 
@@ -76,6 +75,14 @@ class Utils
 		} 
 
 		return ImagePng($img); 
+	}
+
+	public static function makeError($error, &$value)
+	{
+		$value['error'] = $error->getCode();
+		$value['error-message'] = $error->getMessage();
+		$value['error-file'] = $error->getFile();
+		$value['error-Line'] = $error->getLine();
 	}
 
 }

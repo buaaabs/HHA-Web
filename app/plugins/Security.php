@@ -1,114 +1,109 @@
 <?php
+/* 
+* @Author: sxf
+* @Date:   2014-08-25 20:32:46
+* @Last Modified by:   sxf
+* @Last Modified time: 2014-08-27 16:21:20
+*/
 
 use Phalcon\Events\Event,
-  Phalcon\Mvc\User\Plugin,
-  Phalcon\Mvc\Dispatcher,
-  Phalcon\Acl;
+        Phalcon\Mvc\User\Plugin,
+        Phalcon\Mvc\Dispatcher,
+        Phalcon\Acl;
 
 /**
- * Security
- *
- * This is the security plugin which controls that users only have access to the modules they're assigned to
- */
+* Acl for user
+*/
 class Security extends Plugin
 {
+	public $acl = null;
+	$isInitDone = false;
 
-  public function __construct($dependencyInjector)
-  {
-    $this->_dependencyInjector = $dependencyInjector;
-  }
+	public function beforeExecuteRoute(Event $event, Dispatcher $dispatcher)
+    {
+    	if (!$isInitDone) {
+    		init("app/security/acl.data");
+    		$isInitDone = true;
+    	}
 
-  public function getAcl()
-  {
-    if (!isset($this->persistent->acl)) {
+    	$user = $this->session->get('user');
+    	$id = 1;
+    	$role = '';
+    	if (isset($user)) {
+    		if (isset($user['auth-group-name'])) {
+    			$role = $user['auth-group-name'];
+    		} else {
+    			$id = $user['auth-group'];
+    			$auth_group = AuthGroup::findFirst($id);
+    			$role = $auth_group->name;
+    			$user['auth-group-name'] = $role;
+    			$_SESSION['user'] = $user;
+    		}
+    	} 
 
-      $acl = new Phalcon\Acl\Adapter\Memory();
+    	$controller = $dispatcher->getControllerName();
+        $action = $dispatcher->getActionName();
+    	$allowed = $acl->isAllowed($role, $controller, $action);
+    	if ($allowed != Acl::ALLOW) {
+    		$ans = [];
+    		$ans['error'] = 104;
+    		$ans['error-message'] = '权限不足';
 
-      $acl->setDefaultAction(Phalcon\Acl::DENY);
+    		echo json_encode($ans);
+    		//Returning "false" we tell to the dispatcher to stop the current operation
+            return false;
+    	}
+	}
 
-      //Register roles
-      $roles = array(
-        'users' => new Phalcon\Acl\Role('Users'),
-        'guests' => new Phalcon\Acl\Role('Guests')
-      );
-      foreach ($roles as $role) {
-        $acl->addRole($role);
-      }
+	public function clearTemp()
+	{
+		
+	}
 
-      //Private area resources
-      $privateResources = array(
-        'companies' => array('index', 'search', 'new', 'edit', 'save', 'create', 'delete'),
-        'products' => array('index', 'search', 'new', 'edit', 'save', 'create', 'delete'),
-        'producttypes' => array('index', 'search', 'new', 'edit', 'save', 'create', 'delete'),
-        'invoices' => array('index', 'profile')
-      );
-      foreach ($privateResources as $resource => $actions) {
-        $acl->addResource(new Phalcon\Acl\Resource($resource), $actions);
-      }
+	function adding()
+	{
+		//找到并添加所有角色，例如管理员，游客，用户等
+		$auth_groups = AuthGroup::find();
+		foreach ($auth_groups as $group) {
+			$acl->addRole(new Phalcon\Acl\Role($group->name));
+		}
 
-      //Public area resources
-      $publicResources = array(
-        'index' => array('index'),
-        'api' => array('index','reg','log','update','get'),
-        'about' => array('index'),
-        'session' => array('index', 'register', 'start', 'end'),
-        'contact' => array('index', 'send')
-      );
-      foreach ($publicResources as $resource => $actions) {
-        $acl->addResource(new Phalcon\Acl\Resource($resource), $actions);
-      }
+		//添加访问控制资源
+		$auth_names = AuthName::find();
+		foreach ($auth_names as $auth_name) {
+			$pname = explode('-',$auth_name->name);
+			$acl->addResource($pname[0],$pname[1]);
+		}
 
-      //Grant access to public areas to both users and guests
-      foreach ($roles as $role) {
-        foreach ($publicResources as $resource => $actions) {
-          $acl->allow($role->getName(), $resource, '*');
-        }
-      }
+		//定义访问控制
+		$maps = $AuthMap::find();
+		foreach ($maps as $map) {
+			$pname = explode('-',$map->auth_name);
+			$acl->allow($map->auth_group,$pname[0],$pname[1]);
+		}
+	}
 
-      //Grant acess to private area to role Users
-      foreach ($privateResources as $resource => $actions) {
-        foreach ($actions as $action){
-          $acl->allow('Users', $resource, $action);
-        }
-      }
+	function init($path)
+	{
+		//Check whether acl data already exist
+		if (!is_file($path)) {
 
-      //The acl is stored in session, APC would be useful here too
-      $this->persistent->acl = $acl;
-    }
+		    $acl = new \Phalcon\Acl\Adapter\Memory();
+		    $acl->setDefaultAction(Phalcon\Acl::DENY);
 
-    return $this->persistent->acl;
-  }
+		    //... Define roles, resources, access, etc
+		    $this->adding();
 
-  /**
-   * This action is executed before execute any action in the application
-   */
-  public function beforeDispatch(Event $event, Dispatcher $dispatcher)
-  {
+		    // Store serialized list into plain file
+		    file_put_contents($path, serialize($acl));
 
-    $auth = $this->session->get('auth');
-    if (!$auth){
-      $role = 'Guests';
-    } else {
-      $role = 'Users';
-    }
+		} else {
 
-    $controller = $dispatcher->getControllerName();
-    $action = $dispatcher->getActionName();
-
-    $acl = $this->getAcl();
-
-    $allowed = $acl->isAllowed($role, $controller, $action);
-    if ($allowed != Acl::ALLOW) {
-      $this->flash->error("You don't have access to this module");
-      $dispatcher->forward(
-        array(
-          'controller' => 'index',
-          'action' => 'index'
-        )
-      );
-      return false;
-    }
-
-  }
-
+		     //Restore acl object from serialized file
+		     $acl = unserialize(file_get_contents($path));
+		}
+	}
 }
+
+
+?>
