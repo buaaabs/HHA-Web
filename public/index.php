@@ -38,24 +38,24 @@ try {
         return $view;
     });
 
-    $di->set('filter',function() {   
-        return new \Phalcon\Filter();
-    });
+    // $di->set('filter',function() {   
+    //     return new \Phalcon\Filter();
+    // });
 
-    $di->set('validation',function ()
-    {
-        return new Phalcon\Validation();
-    });
+    // $di->set('validation',function ()
+    // {
+    //     return new Phalcon\Validation();
+    // });
 
-    $di->set('security', function(){
+    // $di->set('security', function(){
 
-        $security = new Phalcon\Security();
+    //     $security = new Phalcon\Security();
 
-        //Set the password hashing factor to 12 rounds
-        $security->setWorkFactor(12);
+    //     //Set the password hashing factor to 12 rounds
+    //     $security->setWorkFactor(12);
 
-        return $security;
-    }, true);
+    //     return $security;
+    // }, true);
 
     $di['router'] = function() {
 
@@ -64,7 +64,10 @@ try {
 
         //Read the annotations from ProductsController if the uri starts with /api/products
         $router->addResource('UserApi', '/UserApi');
-
+        $router->addResource('UserData', '/UserData');
+        $router->addResource('AccountApi', '/AccountApi');
+        $router->addResource('AuthApi', '/AuthApi');
+        $router->addResource('Index', '/Index');
         return $router;
     };
 
@@ -86,12 +89,11 @@ try {
 
     //     $eventsManager = $di->getShared('eventsManager');
 
-    //     $security = new Security($di);
-
+    //     // $security = new Security($di);
         
     //     // * We listen for events in the dispatcher using the Security plugin
          
-    //     $eventsManager->attach('dispatch', $security);
+    //     // $eventsManager->attach('dispatch', $security);
 
     //     $dispatcher = new Phalcon\Mvc\Dispatcher();
     //     $dispatcher->setEventsManager($eventsManager);

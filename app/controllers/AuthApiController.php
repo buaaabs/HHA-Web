@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-25 16:31:40
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-25 19:05:31
+* @Last Modified time: 2014-08-28 18:34:23
 */
 
 /**
@@ -15,7 +15,7 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 	/**
 	 * @Post('/AuthGroup')
 	 */
-	public function authgroupAction()
+	public function auth_groupAction()
 	{
 		$ans = [];
 		try {
@@ -27,7 +27,7 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 			}
 			$ans['ret'] = 0;
 		} catch(Exception $e) {
-			Utils.makeError($e, $ans);
+			Utils::makeError($e, $ans);
 		} finally {
 			echo json_encode($ans);
 		}

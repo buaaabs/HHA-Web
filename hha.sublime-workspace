@@ -4,16 +4,16 @@
 		"selected_items":
 		[
 			[
+				"user",
+				"user_id"
+			],
+			[
 				"auth_gr",
 				"auth_group"
 			],
 			[
 				"json",
 				"json_encode"
-			],
-			[
-				"user",
-				"username"
 			],
 			[
 				"S",
@@ -536,26 +536,30 @@
 			}
 		},
 		{
-			"file": "app/controllers/AuthApiController.php",
+			"file": "app/controllers/AboutController.php",
 			"settings":
 			{
-				"buffer_size": 1393,
+				"buffer_size": 393,
 				"line_ending": "Windows"
 			}
 		},
 		{
+			"contents": "<?php\n/* \n* @Author: sxf\n* @Date:   2014-08-26 15:21:12\n* @Last Modified by:   sxf\n* @Last Modified time: 2014-08-28 18:19:20\n*/\n\n\n\n\n\n//这个控制器所属的接口负责用户进行数据上传与管理\n\n/** \n* @RoutePrefix(\"/UserData\")\n*/\nclass UserDataController extends \\Phalcon\\Mvc\\Controller\n{\n	public function initialize()\n	{\n		\n	}\n\n	public function indexAction()\n	{\n		\n	}\n\n	/**\n	 * @Get('/Pla/:int',paths={tit='hello',id=1})\n	 */\n	public function ttAction($id,$tit)\n	{\n		echo $id;\n		echo $tit;\n		echo $this->dispatcher->getParam('tit');\n		echo ' ok,Data';\n	}\n\n\n	/**\n	 * @Get('/Pl/:int/:int',paths={id=2,title=1})\n	 */\n	public function tttAction($id,$title)\n	{\n		echo $id;\n		echo 'ok,Data';\n	}\n\n	function findData($id,$key)\n	{\n		$ans = [];\n		$conditions = 'user_id = :id: AND key = :key:';\n		$parameters = [\n						'id'  => $id,\n						'key' => $key\n					];\n		$bindtypes  = [\n						'id'  => Column::BIND_PARAM_INT,\n						'key' => Column::BIND_PARAM_STR\n					];\n		//查询，并用bind限制SQL注入\n		\n		$item = Data::findFirst([\n			$conditions,\n			'bind' => $parameters,\n			'bindTypes' => $bindtypes\n		]);\n\n		return $item;\n	}\n\n	/**\n	 * @Get('/Data')\n	 */\n	public function data_getAction()\n	{\n		//登陆验证\n		if (!isset($_SESSION['user'])) \n			throw new Exception('用户未登录', 103);\n		$id = $_SESSION['user']['id'];\n		// if ($id == null || ctype_digit($id)) throw new Exception('id有误', 1001);		\n		data_gAction($id);\n	}\n\n	/**\n	 * @Get('/Data/:int',paths={id=1})\n	 */\n	public function data_get_gAction($id)\n	{\n		$ans = [];\n		try{\n			$key   = $request->getQuery('key');\n\n			$item  = findData($id,$key);\n			$ans['value'] = $item->value;\n		} catch(Exception $e) {\n			Utils.makeError($ans,$e);\n		} finally {\n			echo json_encode($ans);\n		}\n	}\n\n	/**\n	 * @Put('/Data')\n	 */\n	public function data_putAction()\n	{\n		//登陆验证\n		if (!isset($_SESSION['user'])) \n			throw new Exception('用户未登录', 103);\n		$id = $_SESSION['user']['id'];\n		// if ($id == null || ctype_digit($id)) throw new Exception('id有误', 1001);		\n		data_put_gAction($id);\n	}\n\n\n	/**\n	 * @Put('/Data/{id:[0-9]+}')\n	 */\n	public function data_put_gAction($id)\n	{\n		$ans = [];\n		try{\n			$key   = $request->getPut('key');\n			$value = $request->getPut('value');\n\n			$item = findData($id,$key);\n			$item->value = $value;\n			if ($item->save() == false) {\n				throw new Exception('数据库异常', 100);\n			}\n			$ans['ret'] = 0;\n			\n		} catch(Exception $e) {\n			Utils.makeError($ans,$e);\n		} finally {\n			echo json_encode($ans);\n		}\n	}\n	\n	/**\n	 * @Get('/Survey')\n	 */\n	public function survey_get_Action()\n	{\n		//登陆验证\n		if (!isset($_SESSION['user'])) \n			throw new Exception('用户未登录', 103);\n		$user_id = $_SESSION['user']['id'];\n		survey_get_gAction($user_id);\n	}\n\n	/**\n	 * @Get('/Survey/{id:[0-9]+}')\n	 */\n	public function survey_get_gAction($user_id)\n	{\n		$ans = [];\n		try {\n			$Get = $request->getGet(['item_id','datemin','datemax','limit']);\n\n			$validation = new UserDataValidation();\n			$messages   = $validation->validate($Get);\n		    foreach ($messages as $message) {\n		        throw new Exception($message,102);\n		    }\n		\n			$conditions = 'item_id = :i_id: AND user_id = :u_id:';\n			$parameters = [\n				'i_id' => $Get['item_id'] ,\n				'u_id' => $user_id\n			];\n\n			if (isset($datemin)) {\n				$conditions .= 'AND date >= :min: ';\n				$parameters['min'] = $Get['datemin'];\n			} \n				\n			if (isset($datamax)) {\n				$conditions .= 'AND date <= :max: ';\n				$parameters['max'] = $Get['datemax'];\n			}\n			\n			$result  = Survey::find(\n				$conditions,\n				$parameters\n			);\n			$ans['data'] = [];\n			$p = 0;\n			foreach ($result as $item) {\n				$ans['data'][$p] = [\n					'value'=> $item->value,\n					'date' => $item->date\n				];\n			\n			}\n		} catch (Exception $e) {\n			Utils.makeError($ans,$e);\n		} finally {\n			echo json_encode($ans);\n		}	\n	}\n\n	/**\n	 * @Post('/')\n	 */\n	public function survey_postAction($id = null)\n	{\n		\n	}\n\n\n	/**\n	 * @Get\n	 */\n	public function sampleAction()\n	{\n		\n	}\n\n	public function sample_gAction($id)\n	{\n		\n	}\n\n}\n\n\n\n\n?>\n",
 			"file": "app/controllers/UserDataController.php",
+			"file_size": 4207,
+			"file_write_time": 130536947601429671,
 			"settings":
 			{
-				"buffer_size": 1892,
-				"line_ending": "Windows"
+				"buffer_size": 3906,
+				"line_ending": "Windows",
+				"scratch": true
 			}
 		},
 		{
-			"file": "/C/Users/sxf/Desktop/ABS-HHA-agile-doc/内部使用&引用文档/API文档概要设计.txt",
+			"file": "app/library/UserDataValidation.php",
 			"settings":
 			{
-				"buffer_size": 9182,
+				"buffer_size": 858,
 				"line_ending": "Windows"
 			}
 		},
@@ -563,7 +567,15 @@
 			"file": "public/index.php",
 			"settings":
 			{
-				"buffer_size": 3468,
+				"buffer_size": 3735,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "app/controllers/AuthApiController.php",
+			"settings":
+			{
+				"buffer_size": 1395,
 				"line_ending": "Windows"
 			}
 		},
@@ -571,15 +583,15 @@
 			"file": "app/library/Utils.php",
 			"settings":
 			{
-				"buffer_size": 1998,
+				"buffer_size": 2014,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "app/controllers/UserApiController.php",
+			"file": "app/config/config.ini",
 			"settings":
 			{
-				"buffer_size": 5191,
+				"buffer_size": 393,
 				"line_ending": "Windows"
 			}
 		}
@@ -1150,7 +1162,19 @@
 	},
 	"file_history":
 	[
+		"/D/web/wamp/www/HHA-Web/app/controllers/AuthApiController.php.orig",
+		"/D/web/wamp/www/HHA-Web/app/controllers/UserApiController.php",
+		"/D/web/wamp/www/HHA-Web/app/controllers/ControllerBase.php",
 		"/D/web/wamp/www/HHA-Web/app/plugins/Security.php",
+		"/D/web/wamp/www/HHA-Web/app/library/Utils.php",
+		"/D/web/wamp/www/HHA-Web/app/config/config.ini",
+		"/D/web/wamp/www/HHA-Web/app/views/userindex/index.volt",
+		"/D/web/wamp/www/HHA-Web/app/controllers/AuthApiController.php",
+		"/D/web/wamp/www/HHA-Web/app/library/AuthValidation.php.orig",
+		"/D/web/wamp/www/HHA-Web/app/controllers/ArticlePathController.php",
+		"/D/web/wamp/www/HHA-Web/app/library/Verify.php",
+		"/D/web/wamp/www/HHA-Web/app/library/BaseException.php",
+		"/C/Users/sxf/Desktop/ABS-HHA-agile-doc/内部使用&引用文档/API文档概要设计.txt",
 		"/D/web/wamp/www/HHA-Web/app/plugin/Security.php",
 		"/D/web/wamp/www/HHA-Web/app/views/backend/index.volt",
 		"/C/Users/sxf/Desktop/ABS-HHA-agile-doc/内部使用&引用文档/HHAv0.1.md",
@@ -1159,10 +1183,8 @@
 		"/D/Program Files/Sublime Text 3/Data/Packages/User/Default (Windows).sublime-keymap",
 		"/D/web/wamp/www/HHA-Web/app/library/UserValidation.php",
 		"/D/web/wamp/www/HHA-Web/app/library/FilterValidation.php",
-		"/D/web/wamp/www/HHA-Web/app/library/BaseException.php",
 		"/D/web/wamp/www/HHA-Web/tests/index.php",
 		"/D/web/wamp/www/HHA-Web/tests/simpletest/web_tester.php",
-		"/D/web/wamp/www/HHA-Web/app/controllers/AuthApiController.php",
 		"/D/web/wamp/www/HHA-Web/tests/auth_api_test.php",
 		"/C/Users/sxf/Desktop/ABS-HHA-agile-doc/内部使用&引用文档/ErrorCode.txt",
 		"/D/web/wamp/www/HHA-Web/app/library/AuthUpdataValidation.php",
@@ -1188,7 +1210,6 @@
 		"/D/web/wamp/www/HHA-Web/tests/phpunit.xml",
 		"/D/web/wamp/www/HHA-Web/public/index.php",
 		"/D/web/wamp/www/HHA-Web/app/library/Myfilter.php",
-		"/D/web/wamp/www/HHA-Web/app/library/Utils.php",
 		"/D/web/wamp/www/HHA-Web/app/controllers/ArticleController.php",
 		"/D/web/wamp/www/HHA-Web/app/controllers/ApiController.php",
 		"/D/web/wamp/www/HHA-Web/app/models/AuthName.php",
@@ -1225,7 +1246,6 @@
 		"/D/web/wamp/www/HHA-Web/app/views/backend/login.volt",
 		"/D/web/wamp/www/HHA-Web/app/views/article/index.volt",
 		"/D/web/wamp/www/ace/widgets.html",
-		"/D/web/wamp/www/HHA-Web/app/views/userindex/index.volt",
 		"/D/web/wamp/www/HHA-Web/app/views/index.volt",
 		"/D/web/wamp/www/js-drag/b.html",
 		"/D/web/wamp/www/js-drag/hello/hello.prop",
@@ -1240,7 +1260,6 @@
 		"/D/web/wamp/www/charisma-master/php-version/header.php",
 		"/D/web/wamp/www/HHA-Web/app/views/layouts/backend-temp.volt",
 		"/D/web/wamp/www/HHA-Web/app/views/article/details.volt",
-		"/D/web/wamp/www/HHA-Web/app/controllers/ControllerBase.php",
 		"/D/web/wamp/www/HHA-Web/app/controllers/DataviewController.php",
 		"/D/web/wamp/www/HHA-Web/app/views/layouts/main.volt",
 		"/D/web/wamp/www/HHA-Web/app/views/layouts/blank.volt",
@@ -1270,18 +1289,11 @@
 		"/D/web/wamp/www/HHA-Web/app/views/shared/footer.volt",
 		"/D/web/wamp/www/HHA-Web/app/controllers/IntroduceController.php",
 		"/D/web/wamp/www/HHA-Web/cache/volt/d%%%%web%%wamp%%www%%hha-web%%app%%views%%session%%index.volt.php",
-		"/D/web/wamp/www/HHA-Web/app/views/session/index.phtml",
-		"/D/web/wamp/www/HHA-Web/app/controllers/SignupController.php",
-		"/D/web/wamp/www/HHA-Web/app/config/config.ini",
-		"/D/web/wamp/www/HHA-Web/app/views/signup/index.phtml",
-		"/C/Users/sxf/Desktop/环渤海骑行/大连骑行游记",
-		"/C/Users/sxf/Desktop/环渤海骑行/渤海水质调查报告.md",
-		"/D/web/wamp/www/gc/login.php",
-		"/D/web/wamp/www/HHA-Web/app/views/index/index.phtml"
+		"/D/web/wamp/www/HHA-Web/app/views/session/index.phtml"
 	],
 	"find":
 	{
-		"height": 36.0
+		"height": 38.0
 	},
 	"find_in_files":
 	{
@@ -1298,6 +1310,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"_PUT",
 			"auth_group",
 			"user",
 			"email",
@@ -1424,8 +1437,7 @@
 			"data",
 			"ServerProxy",
 			"id",
-			"value",
-			"name"
+			"value"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -1457,7 +1469,7 @@
 	"groups":
 	[
 		{
-			"selected": 4,
+			"selected": 6,
 			"sheets":
 			[
 				{
@@ -1538,7 +1550,7 @@
 						"translation.y": 308.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
@@ -1554,8 +1566,8 @@
 						"selection":
 						[
 							[
-								3055,
-								3088
+								147,
+								137
 							]
 						],
 						"settings":
@@ -1711,7 +1723,7 @@
 								"Python Django": "Python"
 							},
 							"codeintel_tooltips": "popup",
-							"function_name_status_row": 126,
+							"function_name_status_row": 9,
 							"origin_encoding": "UTF-8",
 							"side_bar_folders_auto_load_folder": 1,
 							"sublime_auto_complete": true,
@@ -1719,7 +1731,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 3444.0,
+						"translation.y": 112.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 4,
@@ -1727,19 +1739,19 @@
 				},
 				{
 					"buffer": 2,
-					"file": "app/controllers/AuthApiController.php",
+					"file": "app/controllers/AboutController.php",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1393,
+						"buffer_size": 393,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1384,
-								1384
+								383,
+								383
 							]
 						],
 						"settings":
@@ -1774,10 +1786,10 @@
 								7,
 								222,
 								8,
-								25,
+								6,
 								16,
-								31,
-								40,
+								9,
+								11,
 								0,
 								0,
 								0,
@@ -1894,18 +1906,19 @@
 								"Python Django": "Python"
 							},
 							"codeintel_tooltips": "popup",
-							"function_name_status_row": 71,
-							"open_with_edit": true,
-							"origin_encoding": "UTF-8",
+							"function_name_status_row": 22,
+							"origin_encoding": "ASCII",
 							"side_bar_folders_auto_load_folder": 1,
 							"sublime_auto_complete": true,
-							"syntax": "Packages/PHP/PHP.tmLanguage"
+							"syntax": "Packages/PHP/PHP.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1124.0,
+						"translation.y": 252.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
@@ -1914,15 +1927,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1892,
+						"buffer_size": 3906,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1050,
-								1050
+								591,
+								591
 							]
 						],
 						"settings":
@@ -2077,35 +2090,39 @@
 								"Python Django": "Python"
 							},
 							"codeintel_tooltips": "popup",
-							"function_name_status_row": 54,
+							"force_encoding": "GBK",
+							"function_name_status_row": 44,
+							"in_converting": true,
 							"open_with_edit": true,
-							"origin_encoding": "UTF-8",
+							"origin_encoding": "GBK",
+							"revert_to_scratch": true,
 							"side_bar_folders_auto_load_folder": 1,
 							"sublime_auto_complete": true,
-							"syntax": "Packages/PHP/PHP.tmLanguage"
+							"syntax": "Packages/PHP/PHP.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1472.0,
+						"translation.y": 672.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
 					"buffer": 4,
-					"file": "/C/Users/sxf/Desktop/ABS-HHA-agile-doc/内部使用&引用文档/API文档概要设计.txt",
+					"file": "app/library/UserDataValidation.php",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 9182,
+						"buffer_size": 858,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								8945,
-								8945
+								5,
+								5
 							]
 						],
 						"settings":
@@ -2140,10 +2157,10 @@
 								7,
 								222,
 								8,
-								17,
-								17,
-								15,
-								16,
+								27,
+								14,
+								6,
+								50,
 								0,
 								0,
 								0,
@@ -2260,18 +2277,17 @@
 								"Python Django": "Python"
 							},
 							"codeintel_tooltips": "popup",
-							"function_name_status_row": 529,
-							"origin_encoding": "UTF-8",
+							"function_name_status_row": 0,
+							"origin_encoding": "ASCII",
 							"side_bar_folders_auto_load_folder": 1,
 							"sublime_auto_complete": true,
-							"syntax": "Packages/Textile/Textile.tmLanguage",
-							"translate_tabs_to_spaces": false
+							"syntax": "Packages/PHP/PHP.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 14746.0,
+						"translation.y": 168.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
@@ -2280,20 +2296,19 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3468,
+						"buffer_size": 3735,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2528,
-								2528
+								1777,
+								1777
 							]
 						],
 						"settings":
 						{
-							"WordCountShouldRun": false,
 							"c_time":
 							[
 								128,
@@ -2444,7 +2459,7 @@
 								"Python Django": "Python"
 							},
 							"codeintel_tooltips": "popup",
-							"function_name_status_row": 87,
+							"function_name_status_row": 63,
 							"origin_encoding": "ASCII",
 							"side_bar_folders_auto_load_folder": 1,
 							"sublime_auto_complete": true,
@@ -2453,32 +2468,214 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2470.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
 					"buffer": 6,
-					"file": "app/library/Utils.php",
+					"file": "app/controllers/AuthApiController.php",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1998,
+						"buffer_size": 1395,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1989,
-								1989
+								271,
+								271
 							]
 						],
 						"settings":
 						{
-							"WordCountShouldRun": false,
+							"c_time":
+							[
+								128,
+								3,
+								99,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								113,
+								0,
+								67,
+								10,
+								7,
+								222,
+								8,
+								27,
+								14,
+								2,
+								12,
+								0,
+								0,
+								0,
+								113,
+								1,
+								133,
+								113,
+								2,
+								82,
+								113,
+								3,
+								46
+							],
+							"codeintel": true,
+							"codeintel_config":
+							{
+								"JavaScript":
+								{
+									"codeintel_max_recursive_dir_depth": 2,
+									"codeintel_scan_files_in_project": false,
+									"javascriptExtraPaths":
+									[
+									]
+								},
+								"PHP":
+								{
+									"codeintel_max_recursive_dir_depth": 5,
+									"codeintel_scan_files_in_project": false,
+									"phpExtraPaths":
+									[
+									]
+								},
+								"Python":
+								{
+									"env":
+									{
+									}
+								}
+							},
+							"codeintel_enabled_languages":
+							[
+								"JavaScript",
+								"Mason",
+								"XBL",
+								"XUL",
+								"RHTML",
+								"SCSS",
+								"Python",
+								"HTML",
+								"Ruby",
+								"Python3",
+								"XML",
+								"Sass",
+								"XSLT",
+								"Django",
+								"HTML5",
+								"Perl",
+								"CSS",
+								"Twig",
+								"Less",
+								"Smarty",
+								"Node.js",
+								"Tcl",
+								"TemplateToolkit",
+								"PHP"
+							],
+							"codeintel_live": true,
+							"codeintel_live_enabled_languages":
+							[
+								"JavaScript",
+								"Mason",
+								"XBL",
+								"XUL",
+								"RHTML",
+								"SCSS",
+								"Python",
+								"HTML",
+								"Ruby",
+								"Python3",
+								"XML",
+								"Sass",
+								"XSLT",
+								"Django",
+								"HTML5",
+								"Perl",
+								"CSS",
+								"Twig",
+								"Less",
+								"Smarty",
+								"Node.js",
+								"Tcl",
+								"TemplateToolkit",
+								"PHP"
+							],
+							"codeintel_max_recursive_dir_depth": 10,
+							"codeintel_scan_exclude_dir":
+							{
+								"JavaScript":
+								[
+									"/build/",
+									"/min/"
+								]
+							},
+							"codeintel_scan_files_in_project": true,
+							"codeintel_selected_catalogs":
+							[
+								"PyWin32",
+								"jQuery",
+								"Rails"
+							],
+							"codeintel_snippets": true,
+							"codeintel_syntax_map":
+							{
+								"Python Django": "Python"
+							},
+							"codeintel_tooltips": "popup",
+							"function_name_status_row": -1,
+							"origin_encoding": "UTF-8",
+							"side_bar_folders_auto_load_folder": 1,
+							"sublime_auto_complete": true,
+							"syntax": "Packages/PHP/PHP.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": -0.0,
+						"translation.y": 252.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "app/library/Utils.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2014,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								728,
+								728
+							]
+						],
+						"settings":
+						{
 							"c_time":
 							[
 								128,
@@ -2629,7 +2826,7 @@
 								"Python Django": "Python"
 							},
 							"codeintel_tooltips": "popup",
-							"function_name_status_row": 86,
+							"function_name_status_row": 32,
 							"origin_encoding": "UTF-8",
 							"side_bar_folders_auto_load_folder": 1,
 							"sublime_auto_complete": true,
@@ -2637,32 +2834,31 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1882.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 7,
-					"file": "app/controllers/UserApiController.php",
+					"buffer": 8,
+					"file": "app/config/config.ini",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5191,
+						"buffer_size": 393,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1942,
-								1942
+								356,
+								356
 							]
 						],
 						"settings":
 						{
-							"WordCountShouldRun": false,
 							"c_time":
 							[
 								128,
@@ -2693,10 +2889,10 @@
 								7,
 								222,
 								8,
-								22,
-								12,
-								53,
-								26,
+								27,
+								13,
+								50,
+								7,
 								0,
 								0,
 								0,
@@ -2813,22 +3009,17 @@
 								"Python Django": "Python"
 							},
 							"codeintel_tooltips": "popup",
-							"force_encoding": "UTF-8",
-							"function_name_status_row": 100,
-							"in_converting": true,
-							"open_with_edit": true,
-							"origin_encoding": "UTF-8",
-							"revert_to_scratch": true,
+							"function_name_status_row": 18,
+							"origin_encoding": "ASCII",
 							"side_bar_folders_auto_load_folder": 1,
 							"sublime_auto_complete": true,
-							"syntax": "Packages/PHP/PHP.tmLanguage",
-							"translate_tabs_to_spaces": false
+							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
@@ -2836,7 +3027,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 36.0
+		"height": 38.0
 	},
 	"input":
 	{
@@ -2892,7 +3083,7 @@
 	"project": "hha.sublime-project",
 	"replace":
 	{
-		"height": 68.0
+		"height": 72.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -2950,7 +3141,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 246.0,
+	"side_bar_width": 243.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

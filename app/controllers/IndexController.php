@@ -13,12 +13,18 @@ class IndexController extends ControllerBase
         parent::initialize();
     }
 
+    /**
+     * @Get('/index')
+     */
     public function indexAction()
     {
         $this->view->setVar('login_url','api/log/');
        
     }
 
+    /**
+     * @Get('/User')
+     */
     public function userAction()
     {
     	# code...
