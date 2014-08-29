@@ -8,7 +8,7 @@
 
 class Section extends \Phalcon\Mvc\Model
 {
-	
+
 }
 
 ?>

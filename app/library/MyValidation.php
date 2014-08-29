@@ -79,7 +79,7 @@ class AuthUpdataValidation extends Validation
 		]));
 		$this->add('sex',new InclusionIn([
 			'message' => 'The status must be true or false',
-			'domain' => [1,0]; //1 is boy,0 is girl
+			'domain' => [1,0]//1 is boy,0 is girl
 		]));
 
 	}
