@@ -3,12 +3,14 @@
 * @Author: sxf
 * @Date:   2014-08-22 13:25:57
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-22 14:04:59
+* @Last Modified time: 2014-09-01 13:11:28
 */
 use Phalcon\Validation,
     Phalcon\Validation\Validator\PresenceOf,
     Phalcon\Validation\Validator\StringLength,
-    Phalcon\Validation\Validator\Regex;
+    Phalcon\Validation\Validator\Regex,
+    Phalcon\Validation\Validator\InclusionIn,
+    Phalcon\Validation\Validator\Email;
 
 class UserValidation extends Validation
 {
@@ -34,17 +36,17 @@ class UserValidation extends Validation
         )));
         $this->add('realname', new Regex(array(
 		   'pattern' => '/[a-zA-Z0-9\x{4e00}-\x{9fa5}]+/u',
-		   'message' => 'The creation date is invalid'
+		   'message' => 'The realname is invalid'
 		)));
         $this->add('birthday', new StringLength([
 			'max' => 10,
 			'messageMaximum' => 'The birthday is too long'
 		]));
-		$this->add('birthday', new RegexValidator([
+		$this->add('birthday', new Regex([
 			'pattern' => '/\d{4}-\d{2}-\d{2}/u',
 			'message' => 'The birthday need a string like yyyy-mm-dd'
 		]));
-		$this->add('email', new EmailValidator([
+		$this->add('email', new Email([
    			'message' => 'The e-mail is not valid'
 		]));
 		$this->add('sex',new InclusionIn([

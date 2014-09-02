@@ -3,14 +3,20 @@
 * @Author: sxf
 * @Date:   2014-08-25 16:31:40
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-28 18:34:23
+* @Last Modified time: 2014-08-29 16:52:51
 */
 
 /**
-* 
+* @RoutePrefix("/AuthApi")
 */
 class AuthApiController extends \Phalcon\Mvc\Controller
 {
+
+	public function initialize()
+	{
+		$this->view->disable(); //阻止显示
+		$this->response->setHeader("Content-Type", "application/json; charset=utf-8");
+	}
 
 	/**
 	 * @Post('/AuthGroup')

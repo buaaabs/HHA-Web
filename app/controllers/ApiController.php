@@ -3,18 +3,19 @@
 * @Author: sxf
 * @Date:   2014-08-02 20:25:20
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-07 16:23:02
+* @Last Modified time: 2014-08-29 16:52:17
 */
 
 /**
-* api class for HHA
-*/
+ * @RoutePrefix("/Api")
+ */
 class ApiController extends \Phalcon\Mvc\Controller
 {
 
 	protected function initialize()
 	{
 		$this->view->disable(); //阻止显示
+		$this->response->setHeader("Content-Type", "application/json; charset=utf-8");
 	}
 
 

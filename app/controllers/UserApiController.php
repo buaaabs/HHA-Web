@@ -3,11 +3,11 @@
 * @Author: sxf
 * @Date:   2014-08-22 12:53:26
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-25 18:50:52
+* @Last Modified time: 2014-08-29 16:51:24
 */
 
 /**
-*
+* @RoutePrefix("/UserApi")
 */
 class UserApiController extends \Phalcon\Mvc\Controller
 {
@@ -26,7 +26,11 @@ class UserApiController extends \Phalcon\Mvc\Controller
 		{'birthday':'='}
 	];
 
-
+	public function initialize()
+	{
+		$this->view->disable(); //阻止显示
+		$this->response->setHeader("Content-Type", "application/json; charset=utf-8");
+	}
 
 	/**
 	* @Get("/User/{id:[0-9]{10}}",name="find-user")

@@ -6,6 +6,10 @@
  * Date: 8/20/14
  * Time: 11:05 AM
  */
+
+/**
+ * @RoutePrefix("/ArticlePath")
+ */
 class ArticlePathController extends \Phalcon\Mvc\Controller
 {
     public function putAction()

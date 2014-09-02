@@ -23,7 +23,8 @@ try {
             "host" => $config->database->host,
             "username" => $config->database->username,
             "password" => $config->database->password,
-            "dbname" => $config->database->dbname
+            "dbname" => $config->database->dbname,
+            'charset' => 'UTF8'
         ));
     });
 
@@ -60,14 +61,16 @@ try {
     $di['router'] = function() {
 
         //Use the annotations router
-        $router = new \Phalcon\Mvc\Router\Annotations(false);
+        $router = new \Phalcon\Mvc\Router\Annotations();
 
         //Read the annotations from ProductsController if the uri starts with /api/products
         $router->addResource('UserApi', '/UserApi');
         $router->addResource('UserData', '/UserData');
         $router->addResource('AccountApi', '/AccountApi');
         $router->addResource('AuthApi', '/AuthApi');
-        $router->addResource('Index', '/Index');
+        $router->addResource('UserGroup', '/UserGroup');
+        
+
         return $router;
     };
 
