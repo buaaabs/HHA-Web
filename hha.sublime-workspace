@@ -4,12 +4,40 @@
 		"selected_items":
 		[
 			[
-				"use",
-				"userGroup"
+				"user",
+				"user_id"
 			],
 			[
-				"user",
-				"user_ext"
+				"echo",
+				"echo"
+			],
+			[
+				"gr",
+				"group_id  (variable)"
+			],
+			[
+				"group",
+				"group_id"
+			],
+			[
+				"grou",
+				"group_ids  (variable)"
+			],
+			[
+				"sum",
+				"sum_n"
+			],
+			[
+				"ret",
+				"return"
+			],
+			[
+				"id",
+				"item_id  (variable)"
+			],
+			[
+				"use",
+				"userGroup"
 			],
 			[
 				"print",
@@ -218,10 +246,6 @@
 			[
 				"im",
 				"imt	import junit.framework.TestCase;"
-			],
-			[
-				"gr",
-				"greet-str"
 			],
 			[
 				"gre",
@@ -490,76 +514,57 @@
 			[
 				"hell",
 				"Hello"
-			],
-			[
-				"fore",
-				"foreach"
-			],
-			[
-				"sub",
-				"subject"
-			],
-			[
-				"Trea",
-				"ThreadRun"
-			],
-			[
-				"mail",
-				"mail_pass"
-			],
-			[
-				"luc",
-				"lucky"
-			],
-			[
-				"lu",
-				"Lucky"
 			]
 		]
 	},
 	"buffers":
 	[
-		{
-			"contents": "<?php\n/* \n* @Author: sxf\n* @Date:   2014-09-01 18:49:58\n* @Last Modified by:   sxf\n* @Last Modified time: 2014-09-02 09:51:35\n*/\nuse Phalcon\\Validation\\Validator\\PresenceOf,\n    Phalcon\\Validation\\Validator\\Email,\n    Phalcon\\Validation\\Validator\\StringLength,\n    Phalcon\\Validation\\Validator\\Regex;\n\n/** \n* @RoutePrefix(\"/Item\")\n*/\nclass ItemController extends \\Phalcon\\Mvc\\Controller\n{\n\n	public function initialize()\n	{\n		$this->view->disable(); //阻止显示\n		$this->response->setHeader(\"Content-Type\", \"application/json; charset=utf-8\");\n	}\n\n	public function addAction()\n	{\n		$ans = [];\n		try {\n			if (!$this->request->isPost()){\n				throw new Exception('请用正确的方式访问我们的API', 99);\n			}\n			$validation = new Phalcon\\Validation();\n			$validation->add('name',new PresenceOf([\n				'message'=>'name is needed']));\n			$validation->add('name',new StringLength([\n				'max' => 30,\n				'messageMaximum' => 'The name is too long.'\n				]));\n			$messages = $validation->validate($_POST);\n			foreach ($messages as $message) {\n				throw new Exception($message,102);\n		    }\n\n		    //获取Post中的内容，然后将name存入到数据库中\n			$name = $this->request->getPost('name');\n			$userGroup = new UserGroup();\n			$userGroup->name = $name;\n			$success = $userGroup->save();\n			if ($success) {\n				$ans['id'] = $userGroup->id;\n			} else {\n				foreach ($userGroup->getMessages() as $message) {\n					throw new Exception($message, 100);\n				}\n			}\n		} catch(Exception $e) {\n			$ans['id'] = -1;\n			Utils::makeError($e,$ans);\n		} finally {\n			echo json_encode($ans);\n		}\n		\n	}\n	}\n\n	public function deleteAction()\n	{\n		\n	}\n\n}\n\n?>\n\n",
-			"file": "app/controllers/ItemController.php",
-			"file_size": 675,
-			"file_write_time": 130540962958712670,
-			"settings":
-			{
-				"buffer_size": 1580,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/C/Users/sxf/AppData/Local/Temp/Temp1_Jess71p2.zip/Jess71p2/README",
-			"settings":
-			{
-				"buffer_size": 1444,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "app/controllers/UserGroupController.php",
-			"settings":
-			{
-				"buffer_size": 4761,
-				"line_ending": "Windows"
-			}
-		}
 	],
-	"build_system": "Packages/Makefile Improved/Make.sublime-build",
+	"build_system": "Packages/C++/C++.sublime-build",
 	"command_palette":
 	{
-		"height": 189.0,
+		"height": 400.0,
 		"selected_items":
 		[
 			[
-				"set php",
-				"Set Syntax: PHP"
+				"set c",
+				"Set Syntax: C++11"
+			],
+			[
+				"shell",
+				"SublimeREPL: Shell"
+			],
+			[
+				"set shell",
+				"Set Syntax: Shell Script (Bash)"
 			],
 			[
 				"new",
 				"NewBlog"
+			],
+			[
+				"set C",
+				"Set Syntax: C++"
+			],
+			[
+				"set c++",
+				"Set Syntax: C++"
+			],
+			[
+				"set python",
+				"Set Syntax: Python"
+			],
+			[
+				"gitcomm",
+				"Git: Commit"
+			],
+			[
+				"gitadd",
+				"Git: Add..."
+			],
+			[
+				"set php",
+				"Set Syntax: PHP"
 			],
 			[
 				"push",
@@ -647,10 +652,6 @@
 			],
 			[
 				"setC",
-				"Set Syntax: C"
-			],
-			[
-				"set c",
 				"Set Syntax: C"
 			],
 			[
@@ -898,10 +899,6 @@
 				"SublimeREPL: Shell"
 			],
 			[
-				"shell",
-				"SublimeREPL: Shell"
-			],
-			[
 				"nav",
 				"SuperNavigator: Super Navigate in all tabs"
 			],
@@ -1040,33 +1037,9 @@
 			[
 				"ne",
 				"NewBlog"
-			],
-			[
-				"n",
-				"NewBlog"
-			],
-			[
-				"newB",
-				"NewBlog"
-			],
-			[
-				"set masm",
-				"Set Syntax: Assembly x86 (MASM compatible)"
-			],
-			[
-				"markdown",
-				"Set Syntax: Markdown GFM"
-			],
-			[
-				"isntal",
-				"SublimeHaskell: Install"
-			],
-			[
-				"inatall",
-				"SuperNavigator: Super Navigate in all tabs"
 			]
 		],
-		"width": 544.0
+		"width": 536.0
 	},
 	"console":
 	{
@@ -1115,23 +1088,59 @@
 	[
 		"/D/web/wamp/www/HHA-Web",
 		"/D/web/wamp/www/HHA-Web/app",
-		"/D/web/wamp/www/HHA-Web/app/controllers"
+		"/D/web/wamp/www/HHA-Web/app/controllers",
+		"/D/web/wamp/www/HHA-Web/app/library",
+		"/D/web/wamp/www/HHA-Web/app/models",
+		"/D/web/wamp/www/HHA-Web/app/plugins"
 	],
 	"file_history":
 	[
+		"/D/web/wamp/www/HHA-Web-Tests/test_auth.php",
+		"/D/web/wamp/www/HHA-Web-Tests/test_survey.php",
+		"/D/web/wamp/www/HHA-Web/app/controllers/AuthGroupController.php",
+		"/D/workspace/Python/interconnection/1/interconnection/views.py",
+		"/D/workspace/Python/interconnection/1/interconnection/urls.py",
+		"/D/workspace/Python/interconnection/1/index.wsgi",
+		"/D/web/wamp/www/HHA-Web/app/controllers/ItemController.php",
+		"/D/workspace/Python/interconnection/1/interconnection/settings.py",
+		"/C/Users/sxf/Desktop/软件设计/个人博客的设计理念.md",
+		"/C/Users/sxf/Desktop/如何提高自己的学习能力.md",
+		"/C/Users/sxf/Desktop/网站设计纲要.md",
+		"/C/Users/sxf/Desktop/软件设计/网站设计.mdown",
+		"/D/workspace/Python/interconnection/1/interconnection/template/index.html",
+		"/D/workspace/C++/Test2/main.cpp",
+		"/C/Users/sxf/Desktop/软件设计/技术总结.md",
+		"/C/Users/sxf/Desktop/技术总结.md",
+		"/D/Program Files/Python27/Scripts/django.bat",
+		"/D/workspace/Python/interconnection/1/config.yaml",
+		"/C/Users/sxf/Desktop/深度神经网络的基音识别.md",
+		"/C/Users/sxf/Desktop/跨平台应用互联服务.md",
+		"/C/Users/sxf/Desktop/解决软件权限问题.md",
+		"/C/Users/sxf/Desktop/关于畅想空间的设计.md",
+		"/C/Users/sxf/Desktop/个人博客的设计理念.md",
+		"/D/web/wamp/www/HHA-Web-Tests/test.bat",
+		"/D/web/wamp/www/HHA-Web/app/library/MyRegex.php",
+		"/D/web/wamp/www/HHA-Web/app/controllers/UserGroupController.php",
+		"/D/web/wamp/www/HHA-Web-Tests/test_user_group.php",
+		"/D/web/wamp/www/HHA-Web-Tests/test_account.php",
+		"/D/web/wamp/www/HHA-Web/app/library/UserDataValidation.php",
+		"/D/web/wamp/www/HHA-Web/app/controllers/UserDataController.php",
+		"/C/Users/sxf/.ssh/github_rsa.pub",
+		"/D/web/wamp/www/HHA-Web-Tests/test_item.php",
+		"/D/web/wamp/www/HHA-Web/app/library/AuthValidation.php",
+		"/C/Users/sxf/Desktop/ABS-HHA-agile-doc/内部使用&引用文档/API文档概要设计.txt",
+		"/C/Users/sxf/Desktop/关于计算机上知识工程的一些思考",
+		"/D/web/wamp/www/HHA-Web/app/models/Item.php",
+		"/D/web/wamp/www/HHA-Web/app/models/UserMap.php",
+		"/C/Users/sxf/Desktop/zzy/main.cpp",
+		"/C/Users/sxf/AppData/Local/Temp/Temp1_Jess71p2.zip/Jess71p2/README",
 		"/C/Users/sxf/Desktop/单元测试.mdown",
 		"/C/Users/sxf/Desktop/最近任务.mdown",
 		"/C/Users/sxf/Desktop/智能描述.mdown",
 		"/C/Users/sxf/Desktop/SRTP.md",
 		"/D/web/wamp/www/HHA-Web/32etqwqn.thb.txt.bak",
 		"/C/Users/sxf/Desktop/网络实体店的构想.txt",
-		"/D/web/wamp/www/HHA-Web/app/controllers/UserDataController.php",
 		"/D/web/wamp/www/HHA-Web/public/index.php",
-		"/D/web/wamp/www/HHA-Web/app/controllers/UserGroupController.php",
-		"/D/web/wamp/www/HHA-Web-Tests/test_auth.php",
-		"/D/web/wamp/www/HHA-Web-Tests/test.bat",
-		"/D/web/wamp/www/HHA-Web-Tests/test_user_group.php",
-		"/D/web/wamp/www/HHA-Web/app/controllers/ItemController.php",
 		"/D/web/wamp/www/HHA-Web-Tests/test.php",
 		"/D/web/wamp/www/HHA-Web-Tests/simpletest/encoding.php",
 		"/D/web/wamp/www/HHA-Web-Tests/simpletest/browser.php",
@@ -1155,7 +1164,6 @@
 		"/D/web/wamp/www/HHA-Web/app/controllers/ApiController.php",
 		"/D/web/wamp/www/HHA-Web/app/controllers/AuthApiController.php",
 		"/D/web/wamp/www/HHA-Web/app/controllers/IntroduceController.php",
-		"/D/web/wamp/www/HHA-Web/app/library/UserDataValidation.php",
 		"/D/web/wamp/www/HHA-Web/app/models/SurveySimple.php",
 		"/D/web/wamp/www/HHA-Web/app/library/SurveyValidation.php",
 		"/D/web/wamp/www/HHA-Web/app/library/AuthValidation.php.orig",
@@ -1166,7 +1174,6 @@
 		"/D/web/wamp/www/HHA-Web/app/controllers/ControllerBase.php",
 		"/D/web/wamp/www/HHA-Web/app/library/Verify.php",
 		"/D/web/wamp/www/HHA-Web/app/library/BaseException.php",
-		"/C/Users/sxf/Desktop/ABS-HHA-agile-doc/内部使用&引用文档/API文档概要设计.txt",
 		"/D/web/wamp/www/HHA-Web/app/plugin/Security.php",
 		"/D/web/wamp/www/HHA-Web/app/views/backend/index.volt",
 		"/C/Users/sxf/Desktop/ABS-HHA-agile-doc/内部使用&引用文档/HHAv0.1.md",
@@ -1178,7 +1185,6 @@
 		"/D/web/wamp/www/HHA-Web/tests/simpletest/web_tester.php",
 		"/D/web/wamp/www/HHA-Web/tests/auth_api_test.php",
 		"/C/Users/sxf/Desktop/ABS-HHA-agile-doc/内部使用&引用文档/ErrorCode.txt",
-		"/D/web/wamp/www/HHA-Web/app/library/AuthValidation.php",
 		"/D/web/wamp/www/HHA-Web-Tests/auth_api_test.php",
 		"/C/Users/sxf/Desktop/ABS-HHA-agile-doc/内部使用&引用文档/HHARobot机器人API文档.md",
 		"/D/web/wamp/www/HHA-Web/app/controllers/BackendController.php",
@@ -1212,41 +1218,11 @@
 		"/D/web/wamp/www/HHA-Web/app/models/UserExt.php",
 		"/D/Program Files/Sublime Text 3/Data/Packages/SublimeAStyleFormatter/Default (Windows).sublime-keymap",
 		"/D/web/wamp/www/HHA-Web/app/models/Message.php",
-		"/D/web/wamp/www/HHA-Web/app/models/Item.php",
 		"/D/web/wamp/www/HHA-Web/app/models/UserGroup.php",
 		"/D/web/wamp/www/HHA-Web/app/models/AuthGroup.php",
 		"/D/Program Files/Sublime Text 3/Data/Packages/SublimeAStyleFormatter/SublimeAStyleFormatter.sublime-settings",
 		"/D/Program Files/Sublime Text 3/Data/Packages/AdvancedNewFile/Default (Windows).sublime-keymap",
-		"/D/web/wamp/www/HHA-Web/app/models/User-ext.php",
-		"/C/Users/sxf/Desktop/web.txt",
-		"/D/web/wamp/www/js-drag/ntml.html",
-		"/D/web/wamp/www/js-drag/index.html",
-		"/D/web/wamp/www/HHA-Web/app/library/Accout.php",
-		"/C/Users/sxf/Desktop/健康训练",
-		"/D/web/wamp/www/HHA-Web/public/css/main-style.css",
-		"/C/Users/sxf/Desktop/CG教程——可编程实时图形权威指南.tx",
-		"/D/web/wamp/www/HHA-Web/app/models/Article.php",
-		"/D/web/wamp/www/HHA-Web/app/views/article/main.volt",
-		"/D/web/wamp/www/HHA-Web/app/views/article/edit.volt",
-		"/D/web/wamp/www/HHA-Web/app/views/backend/login.volt",
-		"/D/web/wamp/www/HHA-Web/app/views/article/index.volt",
-		"/D/web/wamp/www/ace/widgets.html",
-		"/D/web/wamp/www/HHA-Web/app/views/index.volt",
-		"/D/web/wamp/www/js-drag/b.html",
-		"/D/web/wamp/www/js-drag/hello/hello.prop",
-		"/D/web/wamp/www/js-drag/hello/hello.template",
-		"/D/web/wamp/www/js-drag/js/template.js",
-		"/D/web/wamp/www/js-drag/js/json2.js",
-		"/D/web/wamp/www/HHA-Web/app/library/Resource.php",
-		"/D/web/wamp/www/HHA-Web/app/views/shared/login-form.volt",
-		"/D/web/wamp/www/HHA-Web/app/views/article/sidebar.volt",
-		"/D/web/wamp/www/charisma-master/php-version/footer.php",
-		"/D/web/wamp/www/charisma-master/php-version/header.php",
-		"/D/web/wamp/www/HHA-Web/app/views/layouts/backend-temp.volt",
-		"/D/web/wamp/www/HHA-Web/app/views/article/details.volt",
-		"/D/web/wamp/www/HHA-Web/app/controllers/DataviewController.php",
-		"/D/web/wamp/www/HHA-Web/app/views/layouts/main.volt",
-		"/D/web/wamp/www/HHA-Web/app/views/layouts/blank.volt"
+		"/D/web/wamp/www/HHA-Web/app/models/User-ext.php"
 	],
 	"find":
 	{
@@ -1267,6 +1243,23 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"data",
+			"Data",
+			"data",
+			"Data",
+			"data",
+			"date",
+			"_GET",
+			"Get",
+			"name",
+			"max_n",
+			"p",
+			"P",
+			"p",
+			"id",
+			"ret",
+			"userGroup",
+			"unit",
 			"phalcon",
 			";\n",
 			"item",
@@ -1377,24 +1370,7 @@
 			"Num",
 			"Size",
 			" ",
-			"，",
-			"；",
-			"long handle；                                               ",
-			"（",
-			"）",
-			"；",
-			"struct _finddata_tfileinfo；                          ",
-			"(((",
-			"AIML语言",
-			"0x0400",
-			"SYMBOL",
-			":",
-			"{",
-			"'",
-			"\":'",
-			"D",
-			"ctrl+shift+r",
-			"self.view.insert(edit, 0, \"Hello, World!\")"
+			"，"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -1426,349 +1402,8 @@
 	"groups":
 	[
 		{
-			"selected": 1,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "app/controllers/ItemController.php",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1580,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								924,
-								924
-							]
-						],
-						"settings":
-						{
-							"c_time":
-							[
-								128,
-								3,
-								99,
-								100,
-								97,
-								116,
-								101,
-								116,
-								105,
-								109,
-								101,
-								10,
-								100,
-								97,
-								116,
-								101,
-								116,
-								105,
-								109,
-								101,
-								10,
-								113,
-								0,
-								67,
-								10,
-								7,
-								222,
-								9,
-								1,
-								18,
-								49,
-								58,
-								0,
-								0,
-								0,
-								113,
-								1,
-								133,
-								113,
-								2,
-								82,
-								113,
-								3,
-								46
-							],
-							"codeintel": true,
-							"codeintel_config":
-							{
-								"JavaScript":
-								{
-									"codeintel_max_recursive_dir_depth": 2,
-									"codeintel_scan_files_in_project": false,
-									"javascriptExtraPaths":
-									[
-									]
-								},
-								"PHP":
-								{
-									"codeintel_max_recursive_dir_depth": 5,
-									"codeintel_scan_files_in_project": false,
-									"phpExtraPaths":
-									[
-									]
-								},
-								"Python":
-								{
-									"env":
-									{
-									}
-								}
-							},
-							"codeintel_enabled_languages":
-							[
-								"JavaScript",
-								"Mason",
-								"XBL",
-								"XUL",
-								"RHTML",
-								"SCSS",
-								"Python",
-								"HTML",
-								"Ruby",
-								"Python3",
-								"XML",
-								"Sass",
-								"XSLT",
-								"Django",
-								"HTML5",
-								"Perl",
-								"CSS",
-								"Twig",
-								"Less",
-								"Smarty",
-								"Node.js",
-								"Tcl",
-								"TemplateToolkit",
-								"PHP"
-							],
-							"codeintel_live": true,
-							"codeintel_live_enabled_languages":
-							[
-								"JavaScript",
-								"Mason",
-								"XBL",
-								"XUL",
-								"RHTML",
-								"SCSS",
-								"Python",
-								"HTML",
-								"Ruby",
-								"Python3",
-								"XML",
-								"Sass",
-								"XSLT",
-								"Django",
-								"HTML5",
-								"Perl",
-								"CSS",
-								"Twig",
-								"Less",
-								"Smarty",
-								"Node.js",
-								"Tcl",
-								"TemplateToolkit",
-								"PHP"
-							],
-							"codeintel_max_recursive_dir_depth": 10,
-							"codeintel_scan_exclude_dir":
-							{
-								"JavaScript":
-								[
-									"/build/",
-									"/min/"
-								]
-							},
-							"codeintel_scan_files_in_project": true,
-							"codeintel_selected_catalogs":
-							[
-								"PyWin32",
-								"jQuery",
-								"Rails"
-							],
-							"codeintel_snippets": true,
-							"codeintel_syntax_map":
-							{
-								"Python Django": "Python"
-							},
-							"codeintel_tooltips": "popup",
-							"function_name_status_row": 37,
-							"origin_encoding": "UTF-8",
-							"side_bar_folders_auto_load_folder": 1,
-							"sublime_auto_complete": true,
-							"syntax": "Packages/PHP/PHP.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1372.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "/C/Users/sxf/AppData/Local/Temp/Temp1_Jess71p2.zip/Jess71p2/README",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1444,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								962,
-								1049
-							]
-						],
-						"settings":
-						{
-							"c_time":
-							[
-								128,
-								3,
-								99,
-								100,
-								97,
-								116,
-								101,
-								116,
-								105,
-								109,
-								101,
-								10,
-								100,
-								97,
-								116,
-								101,
-								116,
-								105,
-								109,
-								101,
-								10,
-								113,
-								0,
-								67,
-								10,
-								7,
-								222,
-								5,
-								8,
-								0,
-								0,
-								4,
-								0,
-								0,
-								0,
-								113,
-								1,
-								133,
-								113,
-								2,
-								82,
-								113,
-								3,
-								46
-							],
-							"function_name_status_row": 24,
-							"origin_encoding": "ASCII",
-							"side_bar_folders_auto_load_folder": 1,
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 588.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "app/controllers/UserGroupController.php",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4761,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1455,
-								1455
-							]
-						],
-						"settings":
-						{
-							"c_time":
-							[
-								128,
-								3,
-								99,
-								100,
-								97,
-								116,
-								101,
-								116,
-								105,
-								109,
-								101,
-								10,
-								100,
-								97,
-								116,
-								101,
-								116,
-								105,
-								109,
-								101,
-								10,
-								113,
-								0,
-								67,
-								10,
-								7,
-								222,
-								9,
-								1,
-								14,
-								24,
-								7,
-								0,
-								0,
-								0,
-								113,
-								1,
-								133,
-								113,
-								2,
-								82,
-								113,
-								3,
-								46
-							],
-							"function_name_status_row": 56,
-							"origin_encoding": "UTF-8",
-							"side_bar_folders_auto_load_folder": 1,
-							"syntax": "Packages/PHP/PHP.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 3276.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -1813,7 +1448,7 @@
 	},
 	"output.exec":
 	{
-		"height": 232.0
+		"height": 236.0
 	},
 	"output.find_results":
 	{
@@ -1889,7 +1524,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 336.0,
+	"side_bar_width": 297.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

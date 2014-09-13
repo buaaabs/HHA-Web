@@ -3,13 +3,13 @@
 * @Author: sxf
 * @Date:   2014-08-25 16:31:40
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-29 16:52:51
+* @Last Modified time: 2014-09-04 00:22:27
 */
 
 /**
-* @RoutePrefix("/AuthApi")
+* @RoutePrefix("/AuthGroup")
 */
-class AuthApiController extends \Phalcon\Mvc\Controller
+class AuthGroupController extends \Phalcon\Mvc\Controller
 {
 
 	public function initialize()
@@ -19,20 +19,24 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 	}
 
 	/**
-	 * @Post('/AuthGroup')
+	 * @Post('/Add')
 	 */
-	public function auth_groupAction()
+	public function addAction()
 	{
 		$ans = [];
 		try {
+			if (!$this->request->isPost()) {
+				throw new Exception("Please use the post method", 99);
+			}
 			$name = $this->request->getPost('name');
 			$auth_group = new AuthGroup();
 			$auth_group->name = $name;
 			if ($auth_group->save() == false) {
 				throw new Exception('数据库异常', 102);
 			}
-			$ans['ret'] = 0;
+			$ans['id'] = $auth_group->id;
 		} catch(Exception $e) {
+			$ans['id'] = -1;
 			Utils::makeError($e, $ans);
 		} finally {
 			echo json_encode($ans);
@@ -40,39 +44,48 @@ class AuthApiController extends \Phalcon\Mvc\Controller
 	}
 
 	/**
-	 * @Delete('/AuthGroup/{id:int}')
+	 * @Post('/AuthGroup/Delete')
 	 */
-	public function del_authgroupAction($id)
+	public function deleteAction()
 	{
 		$ans = [];
 		try {
+			if (!$this->request->isPost()) {
+				throw new Exception("Please use the post method", 99);
+			}
+			$id = $this->request->getPost('id');
 			$auth_group = AuthGroup::findFirst($id);
 			if ($auth_group->delete() == false) {
 				throw new Exception('数据库异常', 102);
 			}
 			$ans['ret'] = 0;
 		} catch(Exception $e) {
-			Utils.makeError($e, $ans);
+			$ans['ret'] = -1;
+			Utils::makeError($e, $ans);
 		} finally {
 			echo json_encode($ans);
 		}
 	}
 
 	/**
-	 * @Put('/AuthGroup/{id:int}')
+	 * @Post('/Update/:int',path={id=1})
 	 */
-	public function update_authgroupAction($id)
+	public function updateAction($id)
 	{
 		$ans = [];
 		try {
+			if (!$this->request->isPost()) {
+				throw new Exception("Please use the post method", 99);
+			}
 			$auth_group = AuthGroup::findFirst($id);
-			$auth_group->name = $this->request->getPut('name');
+			$auth_group->name = $this->request->getPost('name');
 			if ($auth_group->save == false) {
 				throw new Exception('数据库异常', 102);
 			}
 			$ans['ret'] = 0;
 		} catch(Exception $e) {
-			Utils.makeError($e, $ans);
+			$ans['ret'] = -1;
+			Utils::makeError($e, $ans);
 		} finally {
 			echo json_encode($ans);
 		}

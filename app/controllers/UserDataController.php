@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-26 15:21:12
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-09-01 14:08:46
+* @Last Modified time: 2014-09-03 22:07:26
 */
 
 
@@ -198,9 +198,9 @@ class UserDataController extends \Phalcon\Mvc\Controller
 		try {
 			$user_id = $this->checkLogin();
 			//TODO:检查权限
-			$this->survey_get($user_id);
+			$ans = $this->survey_get($user_id);
 		} catch (Exception $e) {
-			Utils::makeError($ans,$e);
+			Utils::makeError($e,$ans);
 		} finally {
 			echo json_encode($ans);
 		}
@@ -223,37 +223,37 @@ class UserDataController extends \Phalcon\Mvc\Controller
 		}	
 	}
 
-	public function survey_get($id)
+	public function survey_get($user_id)
 	{
 		$ans = [];
-		$Get = $this->request->getGet(['item_id','datemin','datemax','limit']);
+		// $Get = $this->request->getGet(['item_id','datemin','datemax','limit']);
 
 		$validation = new UserDataValidation();
-		$messages   = $validation->validate($Get);
+		$messages   = $validation->validate($_GET);
 	    foreach ($messages as $message) {
 	        throw new Exception($message,102);
 	    }
 	
-		$conditions = 'item_id = :i_id: AND user_id = :u_id:';
+		$conditions = 'item = :i_id: AND user_id = :u_id:';
 		$parameters = [
-			'i_id' => $Get['item_id'] ,
+			'i_id' => $_GET['item_id'] ,
 			'u_id' => $user_id
 		];
 
 		if (isset($datemin)) {
 			$conditions .= 'AND date >= :min: ';
-			$parameters['min'] = $Get['datemin'];
+			$parameters['min'] = $_GET['datemin'];
 		} 
 			
 		if (isset($datamax)) {
 			$conditions .= 'AND date <= :max: ';
-			$parameters['max'] = $Get['datemax'];
+			$parameters['max'] = $_GET['datemax'];
 		}
 		
-		$result  = Survey::find(
+		$result  = Survey::find([
 			$conditions,
-			$parameters
-		);
+			'bind' => $parameters
+		]);
 		$ans['data'] = [];
 		$p = 0;
 		foreach ($result as $item) {
@@ -261,7 +261,9 @@ class UserDataController extends \Phalcon\Mvc\Controller
 				'value'=> $item->value,
 				'date' => $item->date
 			];
+			$p++;
 		}
+		// print_r($ans);
 		return $ans;
 	}
 
@@ -283,7 +285,7 @@ class UserDataController extends \Phalcon\Mvc\Controller
 		$ans = [];
 		try {
 			$validation = new SurveyValidation();
-			$message = $validation->validate($_POST);
+			$messages = $validation->validate($_POST);
 			if (count($messages)) {
 			    foreach ($messages as $message) {
 			        throw new Exception($message,102);
@@ -293,17 +295,22 @@ class UserDataController extends \Phalcon\Mvc\Controller
 			$value   = $this->request->getPost('value');
 
 			$new_record = new Survey();
-			$new_record->item_id = $item_id;
+			$new_record->item    = $item_id;
 			$new_record->user_id = $id;
 			$new_record->value   = $value;
-
+			$new_record->date    = date("y-m-d H:i:s",time());
 			$succeed = $new_record->save();
-			if ($succeed == false) throw new Exception('数据库异常',100);
+			if ($succeed) {
+				$ans['ret'] = 0;
+			} else {
+				foreach ($new_record->getMessages() as $message) {
+					throw new Exception($message, 100);
+				}
+			}
 			
-			$ans['ret'] = 0;
 		} catch (Exception $e) {
 			$ans['ret'] = -1;
-			Utils::makeError($ans,$e);
+			Utils::makeError($e,$ans);
 		} finally {
 			echo json_encode($ans);
 		}	
@@ -317,7 +324,7 @@ class UserDataController extends \Phalcon\Mvc\Controller
 	{
 		$id = $this->checkLogin();
 		if ($id == null) return;
-		$this->sample_get_gAction($id);
+		$this->simple_get_gAction($id);
 	}
 
 	/**
@@ -333,23 +340,23 @@ class UserDataController extends \Phalcon\Mvc\Controller
 			$validation->add('item_id',new Regex([
 				'pattern' => '/[0-9]{0,10}/u',
 				'message' => "item_id need a number"]));
-			$message = $validation->validate($_POST);
+			$messages = $validation->validate($_GET);
 			if (count($messages)) {
 			    foreach ($messages as $message) {
 			        throw new Exception($message,102);
 			    }
 			}
-			$item_id = $this->request->getPost('item_id');
-			$simple  = SurveySample::findFirst([
-				'item_id=?0 AND id=?1',
-				'bind' => [$id,$item_id]
+			$item_id = $this->request->getQuery('item_id');
+			$simple  = SurveySimple::findFirst([
+				'item=?0 AND user_id=?1',
+				'bind' => [$item_id,$id]
 			]);
 			if ($simple == null) throw new Exception('item can not find', 1002);
 			$ans['value'] = $simple->value;
 
 		} catch (Exception $e) {
 			$ans['value'] = -1;
-			Utils::makeError($ans,$e);
+			Utils::makeError($e,$ans);
 		} finally {
 			echo json_encode($ans);
 		}
@@ -362,18 +369,18 @@ class UserDataController extends \Phalcon\Mvc\Controller
 	{
 		$id = $this->checkLogin();
 		if ($id == null) return;
-		$this->sample_post_gAction($id);
+		$this->simple_post_gAction($id);
 	}
 
 	/**
-	 * @Post('/Simple/{id:[0-9]+}')
+	 * @Post('/Simple/{id:[0-9]{1,10}}')
 	 */
 	public function simple_post_gAction($id)
 	{
 		$ans = [];
 		try {
 			$validation = new SurveyValidation();
-			$message = $validation->validate($_POST);
+			$messages = $validation->validate($_POST);
 			if (count($messages)) {
 			    foreach ($messages as $message) {
 			        throw new Exception($message,102);
@@ -382,16 +389,29 @@ class UserDataController extends \Phalcon\Mvc\Controller
 			$item_id = $this->request->getPost('item_id');
 			$value   = $this->request->getPost('value');
 
-			$simple = new SurveySimple();
-			$simple->item_id = $item_id;
-			$simple->value   = $value;
+			$simple  = SurveySimple::findFirst([
+				'item=?0 AND user_id=?1',
+				'bind' => [$item_id,$id]
+			]);
+			if ($simple == null) {
+				$simple = new SurveySimple();
+				$simple->user_id = $id;
+				$simple->item  = $item_id;
+			}
+			$simple->value = $value;
+			$simple->date  = date("y-m-d H:i:s",time());
 			$succeed = $simple->save();
-			if ($succeed == false) throw new Exception('数据库异常', 100);
-
+			if ($succeed) {
+				$ans['ret'] = 0;
+			} else {
+				foreach ($simple->getMessages() as $message) {
+					throw new Exception($message, 100);
+				}
+			}
 			$ans['ret'] = 0;
 		} catch (Exception $e) {
 			$ans['ret'] = -1;
-			Utils::makeError($ans,$e);
+			Utils::makeError($e,$ans);
 		} finally {
 			echo json_encode($ans);
 		}

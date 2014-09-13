@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-09-01 14:24:07
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-09-01 17:01:45
+* @Last Modified time: 2014-09-03 16:05:16
 */
 use Phalcon\Validation\Validator\PresenceOf,
     Phalcon\Validation\Validator\Email,
@@ -193,6 +193,66 @@ class UserGroupController extends \Phalcon\Mvc\Controller
 			echo json_encode($ans);
 		}
 	}
+
+	//给某一个用户添加一个组别
+	/**
+	 * @Post('/AddGroup/{user_id:[0-9]{1,10}}')
+	 */
+	public function addGroupAction($user_id)
+	{
+		$ans = [];
+		try {
+			$group_id = $this->request->getPost('group_id');
+			echo $group_id;
+			if (!is_numeric($group_id)) throw new Exception('please give us a number', 1301);
+			
+			$map = new UserMap();
+			$map->user_id = $user_id;
+			$map->user_group_id = $group_id;
+			$succeed = $map->save();
+			if ($succeed) {
+		    	$ans['ret'] = 0;
+		    } else {
+		    	foreach ($map->getMessages() as $message) {
+					throw new Exception($message, 100);
+				}
+		    }
+		} catch(Exception $e) {
+			$ans['ret'] = -1;
+			Utils::makeError($e,$ans);
+		} finally {
+			echo json_encode($ans);
+		}
+	}
+
+	//删除用户的组别
+	/**
+	 * @Post('/DeleteGroup/{user_id:[0-9]{1,10}}')
+	 */
+	public function deleteGroupAction($user_id)
+	{
+		$ans = [];
+		try {
+			$group_id = $this->request->getPost('group_id');
+			if (!is_int($group_id)) throw new Exception('please give us a number', 1301);
+			
+			$map = UserMap::findFirst('user_id='.$user_id.' and user_group_id='.$group_id);
+			$succeed = $map->delete();
+			if ($succeed) {
+		    	$ans['ret'] = 0;
+		    } else {
+		    	foreach ($map->getMessages() as $message) {
+					throw new Exception($message, 100);
+				}
+		    }
+		} catch(Exception $e) {
+			$ans['ret'] = -1;
+			Utils::makeError($e,$ans);
+		} finally {
+			echo json_encode($ans);
+		}
+	}
+
 }
 
 
