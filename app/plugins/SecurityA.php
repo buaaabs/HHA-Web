@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-25 20:32:46
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-09-17 22:29:57
+* @Last Modified time: 2014-09-17 23:15:17
 */
 
 use Phalcon\Events\Event,
@@ -17,81 +17,91 @@ use Phalcon\Events\Event,
 class Security extends Plugin
 {
 	public $acl = null;
-	$isInitDone = false;
+	private $acl_path = "app/security/acl.data";
+	private $isInitDone = false;
 
-	// éªŒè¯æ˜¯å¦ç™»é™†
+	// ÑéÖ¤ÊÇ·ñµÇÂ½
 	public function Login()
 	{
 		if ($this->session->isStarted() && $this->session->has("user")) {
-			$user_id =$this->session->get('user')['id'];
+			$user =$this->session->get('user');
 		} else {
-			throw new Exception('ç”¨æˆ·æœªç™»å½•', 103);
+			throw new Exception('ÓÃ»§Î´µÇÂ¼', 103);
 		}
-		return $user_id;
+		return $user;
+	}
+
+	public function Auth($role,$controller,$action)
+	{
+    	$allowed = $this->acl->isAllowed($role, $controller, $action);
+    	if ($allowed != Acl::ALLOW) {
+    		return false;
+    	}
+    	return true;
+	}
+
+	public function CheckAuth($group_id,$controller,$action)
+	{
+		try {
+			$user = Login();
+			$user = $this->session->get('user');
+    		$group_id = $user['auth_group'];
+		} catch (Exception $e) {
+			if (!Auth($group_id,$controller,$action))
+				throw $e;
+		}
+
+		if (!Auth($group_id,$controller,$action))
+			throw new Exception('È¨ÏÞ²»×ã', 104);
 	}
 
 
 	public function beforeExecuteRoute(Event $event, Dispatcher $dispatcher)
     {
-    	if (!$isInitDone) {
-    		init("app/security/acl.data");
-    		$isInitDone = true;
+    	if (!$this->isInitDone) {
+    		init($this->acl_path);
+    		$this->isInitDone = true;
     	}
-
-    	$user = $this->session->get('user');
-    	$id = 1;
-    	$role = '';
-    	if (isset($user)) {
-    		if (isset($user['auth-group-name'])) {
-    			$role = $user['auth-group-name'];
-    		} else {
-    			$id = $user['auth-group'];
-    			$auth_group = AuthGroup::findFirst($id);
-    			$role = $auth_group->name;
-    			$user['auth-group-name'] = $role;
-    			$_SESSION['user'] = $user;
-    		}
-    	} 
-
     	$controller = $dispatcher->getControllerName();
         $action = $dispatcher->getActionName();
-    	$allowed = $acl->isAllowed($role, $controller, $action);
-    	if ($allowed != Acl::ALLOW) {
-    		$ans = [];
-    		$ans['error'] = 104;
-    		$ans['error-message'] = 'æƒé™ä¸è¶³';
+    	$group_id = 0;
 
-    		echo json_encode($ans);
-    		//Returning "false" we tell to the dispatcher to stop the current operation
-            return false;
+    	try {
+    		CheckAuth($group_id,$controller,$action);
+    	} catch (Exception $e) {
+    		$ans = [];
+            Utils::makeError($e, $ans);
+            echo json_encode($ans);
+            //Returning "false" we tell to the dispatcher to stop the current operation
+        	return false;
     	}
 	}
 
 	public function clearTemp()
 	{
-		
+		unlink($this->acl_path);
 	}
 
 	function adding()
 	{
-		//æ‰¾åˆ°å¹¶æ·»åŠ æ‰€æœ‰è§’è‰²ï¼Œä¾‹å¦‚ç®¡ç†å‘˜ï¼Œæ¸¸å®¢ï¼Œç”¨æˆ·ç­‰
+		//ÕÒµ½²¢Ìí¼ÓËùÓÐ½ÇÉ«£¬ÀýÈç¹ÜÀíÔ±£¬ÓÎ¿Í£¬ÓÃ»§µÈ
 		$auth_groups = AuthGroup::find();
 		foreach ($auth_groups as $group) {
-			$acl->addRole(new Phalcon\Acl\Role($group->name));
+			$this->acl->addRole(new Phalcon\Acl\Role($group->name));
 		}
 
-		//æ·»åŠ è®¿é—®æŽ§åˆ¶èµ„æº
+		//Ìí¼Ó·ÃÎÊ¿ØÖÆ×ÊÔ´
 		$auth_names = AuthName::find();
 		foreach ($auth_names as $auth_name) {
 			$pname = explode('-',$auth_name->name);
-			$acl->addResource($pname[0],$pname[1]);
+			$this->acl->addResource($pname[0],$pname[1]);
 		}
 
-		//å®šä¹‰è®¿é—®æŽ§åˆ¶
+		//¶¨Òå·ÃÎÊ¿ØÖÆ
 		$maps = $AuthMap::find();
 		foreach ($maps as $map) {
 			$pname = explode('-',$map->auth_name);
-			$acl->allow($map->auth_group,$pname[0],$pname[1]);
+			$this->acl->allow($map->auth_group,$pname[0],$pname[1]);
 		}
 	}
 
@@ -100,19 +110,19 @@ class Security extends Plugin
 		//Check whether acl data already exist
 		if (!is_file($path)) {
 
-		    $acl = new \Phalcon\Acl\Adapter\Memory();
-		    $acl->setDefaultAction(Phalcon\Acl::DENY);
+		    $this->acl = new \Phalcon\Acl\Adapter\Memory();
+		    $this->acl->setDefaultAction(Phalcon\Acl::DENY);
 
 		    //... Define roles, resources, access, etc
 		    $this->adding();
 
 		    // Store serialized list into plain file
-		    file_put_contents($path, serialize($acl));
+		    file_put_contents($path, serialize($this->acl));
 
 		} else {
 
 		     //Restore acl object from serialized file
-		     $acl = unserialize(file_get_contents($path));
+		     $this->acl = unserialize(file_get_contents($path));
 		}
 	}
 }
