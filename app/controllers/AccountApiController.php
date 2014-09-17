@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-18 14:11:18
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-09-17 13:50:29
+* @Last Modified time: 2014-09-17 18:32:51
 */
 
 /**
@@ -50,7 +50,8 @@ class AccountApiController extends \Phalcon\Mvc\Controller
 				    "username = :str:",
 				    "bind" => ["str" => $username]
 				]);
-				if (is_null($user)) {
+
+				if (!$user) {
 					throw new Exception('用户名找不到',401);
 				}
 
