@@ -17,6 +17,7 @@ class SectionController extends \Phalcon\Mvc\Controller
     public function addSectionAction()
     {
         if ($this->request->isPost() == true) {
+            try {
 
             $ans = [];
             $sectionName = $this->request->getPost("name");
@@ -37,12 +38,14 @@ class SectionController extends \Phalcon\Mvc\Controller
             } else {
                 throw new BaseException('栏目已存在', 101);
             }
-           /* try {
+            
 
-
-            } catch (BaseException $e) {
-
-            }*/
+            } catch (Exception $e) {
+                $ans['id'] = -1;
+                Utils::makeError($e, $ans);
+            } finally {
+                echo json_encode($ans);
+            }
         }
     }
 
@@ -50,25 +53,30 @@ class SectionController extends \Phalcon\Mvc\Controller
     public function deleteSectionAction()
     {
         if ($this->request->isPost() == true) {
-
-            $sectionNames = $this->request->getPost("name");
-            foreach ($sectionNames as $sectionItem) {
-                $existSection = Section::find(array("conditions" => "name=?1",
-                    "bind" => array(1 => $sectionItem)));
-                if (count($existSection) == 0) {
-                    throw new BaseException('栏目不存在', 105);
-                    echo json_encode(-1);
-                } else {
-                    if ($existSection->delete() == true) {
-                        echo json_encode(0);
+            try {
+                $sectionNames = $this->request->getPost("name");
+                foreach ($sectionNames as $sectionItem) {
+                    $existSection = Section::find(array("conditions" => "name=?1",
+                        "bind" => array(1 => $sectionItem)));
+                    if (count($existSection) == 0) {
+                        throw new BaseException('栏目不存在', 105);
+                        echo json_encode(-1);
                     } else {
-                        foreach ($existSection->getMessages() as $message) {
-                            throw new BaseException($message, 100);
+                        if ($existSection->delete() == true) {
+                            echo json_encode(0);
+                        } else {
+                            foreach ($existSection->getMessages() as $message) {
+                                throw new BaseException($message, 100);
+                            }
                         }
                     }
                 }
-            }
-
+            } catch (Exception $e) {
+                $ans['id'] = -1;
+                Utils::makeError($e, $ans);
+            } finally {
+                echo json_encode($ans);
+            }   
         }
     }
 
@@ -78,8 +86,6 @@ class SectionController extends \Phalcon\Mvc\Controller
         if ($this->request->isPost() == true) {
             $ans = [];
             try {
-
-
                 $sectionNewName = $this->request->getPost("name");
                 $oldSection = Section::findFirst("name='$name'");
                 if ($oldSection == false) {
@@ -88,21 +94,24 @@ class SectionController extends \Phalcon\Mvc\Controller
                     $oldSection->name = $sectionNewName;
                     $oldSection->save();
                 }
-            } catch (BaseException $e) {
-
+            } catch (Exception $e) {
+                $ans['id'] = -1;
+                Utils::makeError($e, $ans);
+            } finally {
+                echo json_encode($ans);
             }
         }
     }
 
-    public function  getSectionAction()
+
+    ///TODO:
+    public function getSectionAction()
     {
         if ($this->request->isPost() == true) {
             $sections = Section::find();
             foreach ($sections as $sectionItem) {
 
             }
-
-
         }
     }
 

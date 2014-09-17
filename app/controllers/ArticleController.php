@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-06 15:22:46
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-07 17:52:25
+* @Last Modified time: 2014-09-17 19:27:35
 */
 
 /**
@@ -15,9 +15,11 @@ class ArticleController extends ControllerBase
 
     public function initialize()
     {
-        $this->view->setTemplateAfter('main');
-        Phalcon\Tag::setTitle('Welcome');
-        parent::initialize();
+        // $this->view->setTemplateAfter('main');
+        // Phalcon\Tag::setTitle('Welcome');
+        $this->response->setHeader("Content-Type", "application/json; charset=utf-8");
+        $this->view->disable(); //阻止显示
+        // parent::initialize();
     }
 
     public function indexAction()
@@ -88,21 +90,19 @@ class ArticleController extends ControllerBase
                     $article->section = $section;
                     if ($article->save()) {
                         $ans['ret'] = $article->id;
-                        echo json_encode($ans);
-
                     } else {
                         foreach ($article->getMessages() as $message) {
-                            throw new BaseException($message, 100);
+                            throw new Exception($message, 100);
                         }
                     }
                 } else {
-                    $ans['ret'] = -1;
-                    $ans['error'] = 201;
-                    echo json_encode($ans);
-                    throw new BaseException('同名文章已存在', 201);
+                    throw new Exception('同名文章已存在', 201);
                 }
-            } catch (BaseException $e) {
-
+            } catch (Exception $e) {
+                $ans['ret'] = -1;
+                Utils::makeError($e, $ans);
+            } finally {
+                echo json_encode($ans);
             }
         }
     }
@@ -115,16 +115,12 @@ class ArticleController extends ControllerBase
                 $tarid = $id;
                 $title = $this->request->getPost("title");
                 $date = $this->request->getPost("date");
-                $body = $this->request->getPost("body");
                 $section = $this->request->getPost("section");
 
                 $existArticle = Article::find(array("conditions" => "id=?1",
                     "bind" => array(1 => $tarid)));
                 if (count($existArticle) == 0) {
-                    $ans['ret'] = -1;
-                    $ans['error'] = 204;
-                    echo json_encode($ans);
-                    throw new BaseException("要修改的文章不存在", 204);
+                    throw new Exception("要修改的文章不存在", 204);
                 } else {
                     $existArticle->title = $title;
                     $existArticle->date = $date;
@@ -133,20 +129,15 @@ class ArticleController extends ControllerBase
 
                     if ($existArticle->save() == true) {
                         $ans['ret'] = 0;
-
-                        echo json_encode($ans);
-
                     } else {
-                        $ans['ret'] = -1;
-                        $ans['error'] = 102;
-                        echo json_encode($ans);
-                        throw new BaseException("参数存在非法数据 ", 102);
+                        throw new Exception("参数存在非法数据", 102);
                     }
-
                 }
-            } catch (BaseException $e) {
-
-
+            } catch (Exception $e) {
+                $ans['ret'] = -1;
+                Utils::makeError($e, $ans);
+            } finally {
+                echo json_encode($ans);
             }
         }
     }
@@ -163,14 +154,10 @@ class ArticleController extends ControllerBase
                         $existArticle = Article::find(array("conditions" => "id=?1",
                             "bind" => array(1 => $idItem)));
                         if (count($existArticle) == 0) {
-                            $ans['ret'] = -1;
-                            $ans['error'] = 204;
-                            echo json_encode($ans);
-                            throw new BaseException("要删除的文章不存在", 204);
+                            throw new Exception("要删除的文章不存在", 204);
                         } else {
                             $existArticle->delete();
                             $ans['ret'] = 0;
-                            echo json_encode($ans);
                         }
                     }
                 } else {
@@ -178,21 +165,18 @@ class ArticleController extends ControllerBase
                         $existArticle = Article::find(array("conditions" => "title=?1",
                             "bind" => array(1 => $titleItem)));
                         if (count($existArticle) == 0) {
-                            $ans['ret'] = -1;
-                            $ans['error'] = 204;
-                            echo json_encode($ans);
-                            throw new BaseException("要删除的文章不存在", 204);
+                            throw new Exception("要删除的文章不存在", 204);
                         } else {
-
                             $existArticle->delete();
                             $ans['ret'] = 0;
-                            echo json_encode($ans);
                         }
                     }
                 }
-            } catch (BaseException $e) {
-
-
+            } catch (Exception $e) {
+                $ans['ret'] = -1;
+                Utils::makeError($e, $ans);
+            } finally {
+                echo json_encode($ans);
             }
         }
     }
@@ -206,16 +190,11 @@ class ArticleController extends ControllerBase
                 $existArticle = Article::find(array("conditions" => "id=?1",
                     "bind" => array(1 => $id)));
                 if (count($existArticle) == 0) {
-
-                    $ans['ret'] = -1;
-                    $ans['error'] = 204;
-                    echo json_encode($ans);
-                    throw new BaseException("要查找的文章不存在", 204);
+                    throw new Exception("要查找的文章不存在", 204);
                 } else {
                     $data = [];
                     $data['title'] = $existArticle->title;
                     $data['date'] = $existArticle->date;
-                    $data['body'] = $existArticle->body;
                     $sectionId = $existArticle->section_id;
                     $conditions = "id =:id:";
                     $parameters = array("id" => $sectionId);
@@ -223,21 +202,63 @@ class ArticleController extends ControllerBase
                     $data['section'] = $temp_section->name;
                     $ans['ret'] = 0;
                     $ans['data'] = $data;
-                    echo json_encode($ans);
                 }
-            } catch (BaseException $e) {
-
-
+            } catch (Exception $e) {
+                $ans['ret'] = -1;
+                Utils::makeError($e, $ans);
+            } finally {
+                echo json_encode($ans);
             }
         }
     }
 
-    public function editAction($id)
+    //较特殊的方法，用来获取文章的Html内容，注意校验权限
+    public function putHtmlAction($id)
     {
-        if ($id == 'new') {
+        if ($this->request->isPost() == true) {
+            try {
+                $body = $this->request->getPost("body");
+                $existArticle = Article::find(array("conditions" => "id=?1",
+                    "bind" => array(1 => $tarid)));
+                if (count($existArticle) == 0) {
+                    throw new Exception("要修改的文章不存在", 204);
+                } else {
+                    $existArticle->body = $body;
 
-        } else {
+                    if ($existArticle->save() == true) {
+                        $ans['ret'] = 0;
+                    } else {
+                        throw new Exception("参数存在非法数据", 102);
+                    }
 
+                }
+            } catch (Exception $e) {
+                $ans['ret'] = -1;
+                Utils::makeError($e, $ans);
+            } finally {
+                echo json_encode($ans);
+            }
+        }
+    }
+
+    //较特殊的方法，用来获取文章的Html内容，注意校验权限
+    public function getHtmlAction($id)
+    {
+        $this->response->setHeader("Content-Type", "text/html; charset=utf-8");
+        if ($this->request->isGet() == true) {
+            try {
+                $existArticle = Article::find(array("conditions" => "id=?1",
+                    "bind" => array(1 => $id)));
+                if (count($existArticle) == 0) {
+                    throw new Exception("要查找的文章不存在", 204);
+                } else {
+                    echo $existArticle->body;
+                }
+            } catch (Exception $e) {
+                $ans['ret'] = -1;
+                Utils::makeError($e, $ans);
+                echo json_encode($ans);
+            }
         }
     }
 
