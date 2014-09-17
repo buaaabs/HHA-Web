@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-18 14:11:18
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-09-17 18:32:51
+* @Last Modified time: 2014-09-17 22:35:37
 */
 
 /**
@@ -67,7 +67,7 @@ class AccountApiController extends \Phalcon\Mvc\Controller
 						'id'         => $user->id,
 						'username'   => $user->username,
 						'showname'   => $user->showname,
-						'auth-group' => $user->auth_group
+						'auth_group' => $user->auth_group
 					]);
 				} else {
 					throw new Exception('密码不正确',402);
@@ -116,6 +116,18 @@ class AccountApiController extends \Phalcon\Mvc\Controller
 				$success = $user->save();
 				if ($success) {
 					$ans['id'] = $user->id;
+
+					if ($this->session->isStarted())
+						$this->session->destroy();
+					$this->session->start();
+					$this->session->set('user',
+					[
+						'id'         => $user->id,
+						'username'   => $user->username,
+						'showname'   => $user->showname,
+						'auth_group' => $user->auth_group
+					]);
+
 				} else {
 					foreach ($user->getMessages() as $message) {
 						throw new Exception($message, 100);

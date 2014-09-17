@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-06 15:22:46
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-09-17 19:27:35
+* @Last Modified time: 2014-09-17 19:39:13
 */
 
 /**
@@ -11,8 +11,6 @@
  */
 class ArticleController extends ControllerBase
 {
-
-
     public function initialize()
     {
         // $this->view->setTemplateAfter('main');
@@ -27,7 +25,6 @@ class ArticleController extends ControllerBase
         echo $this->guid();
         $this->view->disable(); //阻止显示
     }
-
 
     public function detailsAction($id = null)
     {
@@ -181,7 +178,6 @@ class ArticleController extends ControllerBase
         }
     }
 
-
     public function getAction($id)
     {
         if ($this->request->isGet() == true) {
@@ -219,7 +215,7 @@ class ArticleController extends ControllerBase
             try {
                 $body = $this->request->getPost("body");
                 $existArticle = Article::find(array("conditions" => "id=?1",
-                    "bind" => array(1 => $tarid)));
+                    "bind" => array(1 => $id)));
                 if (count($existArticle) == 0) {
                     throw new Exception("要修改的文章不存在", 204);
                 } else {

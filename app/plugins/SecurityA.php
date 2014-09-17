@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-25 20:32:46
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-27 16:21:20
+* @Last Modified time: 2014-09-17 22:29:57
 */
 
 use Phalcon\Events\Event,
@@ -18,6 +18,18 @@ class Security extends Plugin
 {
 	public $acl = null;
 	$isInitDone = false;
+
+	// 验证是否登陆
+	public function Login()
+	{
+		if ($this->session->isStarted() && $this->session->has("user")) {
+			$user_id =$this->session->get('user')['id'];
+		} else {
+			throw new Exception('用户未登录', 103);
+		}
+		return $user_id;
+	}
+
 
 	public function beforeExecuteRoute(Event $event, Dispatcher $dispatcher)
     {

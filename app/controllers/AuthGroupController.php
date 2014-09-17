@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-25 16:31:40
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-09-04 00:22:27
+* @Last Modified time: 2014-09-17 21:37:58
 */
 
 /**
@@ -79,7 +79,7 @@ class AuthGroupController extends \Phalcon\Mvc\Controller
 			}
 			$auth_group = AuthGroup::findFirst($id);
 			$auth_group->name = $this->request->getPost('name');
-			if ($auth_group->save == false) {
+			if ($auth_group->save() == false) {
 				throw new Exception('数据库异常', 102);
 			}
 			$ans['ret'] = 0;

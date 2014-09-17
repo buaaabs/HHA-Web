@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-08 14:36:04
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-08-08 15:51:59
+* @Last Modified time: 2014-09-17 20:43:54
 */
 
 
@@ -12,7 +12,7 @@
 */
 class Accout
 {
-	
+
 	//登陆验证，返回0成功，1是密码错误，2是用户名找不到
 	public static function loginVerify($username,$password)
 	{
