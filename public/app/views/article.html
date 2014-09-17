@@ -1,0 +1,15 @@
+<script src="js/article/article_controller.js"></script>
+
+<div ng-controller='article_controller'>
+	<div ng-include="navigation_bar_url"></div>
+	<hr style="border:1px dashed #0000fff"/>
+	<div class="row clearfix">
+		<div class="col-md-7 column">
+			<div ng-include="article_content_url"></div>
+		</div>
+		<div class="col-md-5 column">
+			<div ng-include="artilce_links_url"></div>
+		</div>
+	</div>
+
+</div>

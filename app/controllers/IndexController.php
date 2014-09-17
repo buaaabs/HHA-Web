@@ -7,7 +7,7 @@ class IndexController extends ControllerBase
 
 	public function initialize()
     {
-        $this->view->setTemplateAfter('main');
+        // $this->view->setTemplateAfter('main');
         Resource::init($this->assets);
         Tag::setTitle('Welcome');
         parent::initialize();
@@ -18,7 +18,7 @@ class IndexController extends ControllerBase
      */
     public function indexAction()
     {
-        $this->view->setVar('login_url','api/log/');
+        // $this->view->setVar('login_url','api/log/');
        
     }
 

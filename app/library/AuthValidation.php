@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-18 16:40:00
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-09-03 15:41:08
+* @Last Modified time: 2014-09-17 13:13:53
 */
 
 use Phalcon\Validation,
@@ -19,7 +19,7 @@ class AuthValidation extends Validation
 	public function initialize()
 	{
 		$this->add('username', new PresenceOf(array(
-            'message' => 'The name is required'
+            'message' => 'The username is required'
         )));
         $this->add('password', new PresenceOf(array(
             'message' => 'The password is required'
