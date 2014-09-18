@@ -1,8 +1,8 @@
 
 function register_controller($scope,$http,$q){
 
-	var reg_interface = '/HHA-Web/AuthApi/signup';
-	var details_interface = '/HHA-Web/AuthApi/ext/';
+	var reg_interface = '/HHA-Web/AccountApi/signup';
+	var details_interface = '/HHA-Web/AccountApi/ext/';
 	//定义颜色
 	var normal_color = '#8E8E8E';
 	var warning_color = '#ff0000';
@@ -344,23 +344,23 @@ function register_controller($scope,$http,$q){
 	//用于用户名及密码通过后其他细节的填写
 	var get_details = function(){
 		var det = {
-			'realname': null,
-			'phone': null,
-			'birthday': null,
-			'sex': null,
-			'email': null
+			'realname': '',
+			'phone': '',
+			'birthday': '',
+			'sex': '',
+			'email': ''
 		};
 		//真实姓名是否填写
 		if(is_details_success[0] == true){
-			det.realname = reg_details_contents[0];
+			det.realname = $scope.reg_details_contents[0];
 		}
 		//联系电话是否填写
 		if(is_details_success[1] == true){
-			det.phone = reg_details_contents[1];
+			det.phone = $scope.reg_details_contents[1];
 		}
 		//电子信箱是否填写
 		if(is_details_success[2] == true){
-			det.email = reg_details_contents[2];
+			det.email = $scope.reg_details_contents[2];
 		}
 		//性别是否选择
 		if($("#checkbox_man").is(':checked') == true){
@@ -384,37 +384,40 @@ function register_controller($scope,$http,$q){
 		}
 		return det;
 	}
-	var put_details = function(id){
+	$scope.put_details = function(id){
 		var defered = $q.defer();
 		var u = details_interface + id;
-		$http.put(u,get_details()).then(function(result){
-			if(result.data.ret == 0){
+		var det = get_details();
+		//console.log(u);
+		//console.log(det);
+
+		$.post(u,det,function(result){
+			console.log(result);
+			if(result.ret == 0){
 				alert("信息完善成功！");
-			}else if(result.data.ret == -1){
-				if(result.data.error == 601){
+			}else if(result.ret == -1){
+				if(result.error == 601){
 					alert("用户不存在！");
 				}
-				if(result.data.error == 602){
+				if(result.error == 602){
 					alert("日期不合法！");
 				}
-				if(result.data.error == 603){
+				if(result.error == 603){
 					alert("日期是未来的某一天！");
 				}
-				if(result.data.error == 100){
+				if(result.error == 100){
 					alert("数据库异常！");
 				}
-				if(result.data.error == 601){
+				if(result.error == 601){
 					alert("参数存在非法数据！");
 				}
-				if(result.data.error == 601){
+				if(result.error == 601){
 					alert("未登陆！");
 				}
-				if(result.data.error == 601){
+				if(result.error == 601){
 					alert("权限不足！");
 				}
 			}
-		},function(error){
-			defered.reject(error);
 		});
 
 		return defered.promise;
@@ -423,12 +426,13 @@ function register_controller($scope,$http,$q){
 		//alert(get_details().birthday);
 		if(is_reg_success[0] && is_reg_success[1] && is_reg_success[2]){
 			var defered = $q.defer();
-			$http.post(reg_interface,{
+			$.post(reg_interface,{
 				'username': $scope.input_reg_content[0],
 				'password': $scope.input_reg_content[1]
-			}).then(function(result){
-				if(result.data.id == -1){
-					var err_code = result.data.error;
+			},function(result){
+				if(result.id == -1){
+					console.log(result);
+					var err_code = result.error;
 					if(err_code == 501){
 						alert('用户名已经存在');
 					}else if(err_code == 102){
@@ -441,11 +445,11 @@ function register_controller($scope,$http,$q){
 				}else{
 					//to do something
 					alert("注册成功！");
-					put_details(result.data.id);
+					//console.log(result);
+					$scope.put_details(result.id);
 				}
-			},function(error){
-				defered.reject(error);
 			});
+
 
 			return defered.promise;
 		}else{
@@ -460,5 +464,6 @@ function register_controller($scope,$http,$q){
 				alert("请正确填写再次输入密码一栏");
 			}
 		}
+
 	}
 };

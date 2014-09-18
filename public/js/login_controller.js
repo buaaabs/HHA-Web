@@ -1,5 +1,5 @@
 //the controller for login 
-function login_controller($scope,$http,$q,$window){
+function login_controller($scope,$http,$q,$cookieStore){
 	$scope.user_name = '';
 	$scope.password = '';
 	$scope.input_style = 'input-group';
@@ -61,27 +61,30 @@ function login_controller($scope,$http,$q,$window){
 	}
 
 	var login_interface = '/HHA-Web/AccountApi/login';
+	
 	$scope.on_login = function(){
 		//alert($scope.user_name+$scope.password);
 		
 		var isAutoLogin = document.getElementById("isAutoLogin");
 		var can_auto_login = 'false';
-		if(isAutoLogin.checked){
+		/*if(isAutoLogin.checked){
 			if(! window.sessionStorage || ! window.localStorage){ 
 	    		alert("您的浏览器不支持自动登录！"); 
 			}else{
 				can_auto_login = 'true';
 			}
+		}*/
+
+		if(isAutoLogin.checked){
+			can_auto_login = 'true';
 		}
 		
 		if(is_password_legal() && is_name_legal()){
-			var local_storage = $window.localStorage;
-			if(local_storage.length == 0){
-				local_storage.setItem('userName',$scope.user_name);
-				local_storage.setItem('password',$scope.password);
-			}
+			//设置自动登录
+			$cookieStore.put('userName',$scope.user_name);
+			$cookieStore.put('password',$scope.password);
 			//console.log(can_auto_login);
-			local_storage.setItem('is_auto_login',can_auto_login);
+			$cookieStore.put('is_auto_login',can_auto_login);
 			/*if(local_storage.getItem('is_auto_login') == 'false'){
 				console.log("fffffffff");
 			}else{
@@ -112,14 +115,14 @@ function login_controller($scope,$http,$q,$window){
 					}else{
 						$scope.information = '用户名或密码错误';
 					}
-					console.log(data);
+					//console.log($scope.information);
 				}else{
 					//to do something
+					$cookieStore.put('id',data.id);
 					$scope.information = '登陆成功';
-					console.log(data.id);
+					//console.log(data.id);
 				}
 				});
-
 			return defered.promise;
 			
 			/*$http.post(login_interface,{
@@ -135,11 +138,34 @@ function login_controller($scope,$http,$q,$window){
 		}
 	}
 
+	/*$scope.is_auto_login_change = function(){
+		
+		var isAutoLogin = document.getElementById("isAutoLogin");
+		if(isAutoLogin.checked == true){
+			$.cookie('is_auto_login','true');
+		}else if(isAutoLogin.checked == false){
+			$.cookie('is_auto_login','false');
+		}
+		console.log($.cookie('is_auto_login'));
+	}*/
+
+	$scope.is_auto_login_change = function(){
+		
+		var isAutoLogin = document.getElementById("isAutoLogin");
+		if(isAutoLogin.checked == true){
+			$cookieStore.put('is_auto_login','true');
+		}else if(isAutoLogin.checked == false){
+			$cookieStore.put('is_auto_login','false');
+		}
+		//$cookieStore.put('is_auto_login','true');
+		//console.log($cookieStore.get('is_auto_login'));
+	}
+
 	$scope.$on('auto_login',function(event,msg){
 		$scope.user_name = msg.userName;
 		$scope.password = msg.password;
 		var isAutoLogin = document.getElementById("isAutoLogin");
-		if($window.localStorage.getItem('is_auto_login') == 'true'){
+		if($cookieStore.get('is_auto_login') == 'true'){
 			isAutoLogin.checked = true;
 		}else{
 			isAutoLogin.checked = false;

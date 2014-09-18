@@ -25,7 +25,7 @@
 	</div>
 </div>
 <div class="checkbox form-group">
-	<label><input type="checkbox" id="isAutoLogin" name="isAutoLogin" />下次自动登陆</label>
+	<label><input type="checkbox" id="isAutoLogin" name="isAutoLogin" ng-click="is_auto_login_change()"/>下次自动登陆</label>
 	<label><font color="#FF0000">{{information}}</font></label>
 </div>
 <div class='form-group'>

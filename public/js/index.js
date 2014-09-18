@@ -1,4 +1,4 @@
-var routeApp = angular.module('route_app',['ngRoute']);
+var routeApp = angular.module('route_app',['ngRoute','ngCookies']);
 
 //设置安全路由
 routeApp.config(['$routeProvider',
@@ -29,7 +29,7 @@ routeApp.config(['$routeProvider',
       });
   }]);
 
-  function route_controller($scope,$window){
+  function route_controller($scope,$window,$cookieStore){
     //to define some modules' URL
     $scope.about_modal_url = 'modules/index/about-modal.mo' ;
     $scope.show_carousel_url = 'modules/index/show-carousel.mo' ;
@@ -47,16 +47,18 @@ routeApp.config(['$routeProvider',
 
     $scope.navbar_choose = [0,0,0,0,0,0];
 
-    var url = window.location.href;
-    if(url == "https://localhost/HHA-Web/#/"){
+    var temp_url = window.location.href;
+    var url = temp_url.split('#')[1];
+    //console.log(url);
+    if(url == "/"){
       $scope.navbar_choose[0] = "active";
-    }else if(url == "https://localhost/HHA-Web/#/article"){
+    }else if(url == "/article"){
       $scope.navbar_choose[1] = "active";
-    }else if(url == "https://localhost/HHA-Web/#/introduce"){
+    }else if(url == "/introduce"){
       $scope.navbar_choose[2] = "active";
-    }else if(url == "https://localhost/HHA-Web/#/about"){
+    }else if(url == "/about"){
       $scope.navbar_choose[3] = "active";
-    }else if(url == "https://localhost/HHA-Web/#/login"){
+    }else if(url == "/login"){
       $scope.navbar_choose[4] = "active";
     }else{
       $scope.navbar_choose[5] = "active";
@@ -64,20 +66,15 @@ routeApp.config(['$routeProvider',
 
     //用于自动登陆
     $scope.init = function(){
-    var local_storage = $window.localStorage;
-    var len = local_storage.length;
-    //alert("first");
-    if(len > 0){
-      
-        var name = local_storage.getItem("userName");
-        var pass = local_storage.getItem("password");
+      if($cookieStore.get('is_auto_login') == 'true'){
+        var name = $cookieStore.get("userName");
+        var pass = $cookieStore.get("password");
         var user_info = {
           'userName': name,
           'password': pass
         };
       
         $scope.$broadcast('auto_login',user_info);
-        //alert("second");
       }
     };
     /*$scope.$on('sb',function(e,msg){

@@ -3,7 +3,7 @@
 * @Author: sxf
 * @Date:   2014-08-25 20:32:46
 * @Last Modified by:   sxf
-* @Last Modified time: 2014-09-17 23:15:17
+* @Last Modified time: 2014-09-18 09:54:42
 */
 
 use Phalcon\Events\Event,
@@ -45,7 +45,7 @@ class Security extends Plugin
 		try {
 			$user = Login();
 			$user = $this->session->get('user');
-    		$group_id = $user['auth_group'];
+			$group_id = $user['auth_group'];
 		} catch (Exception $e) {
 			if (!Auth($group_id,$controller,$action))
 				throw $e;
