@@ -136,4 +136,13 @@ routeApp.config(['$routeProvider',
       $scope.navbar_choose[5] = "active";
       $window.location.href = "#/reg";
     };
+
+    $window.onunload = function(){
+      if($cookieStore.get('is_auto_login')!=null && $cookieStore.get('is_auto_login') == 'false'){
+        $cookieStore.remove('is_auto_login');
+        $cookieStore.remove('userName');
+        $cookieStore.remove('password');
+        $cookieStore.remove('id');
+      }
+    }
   }

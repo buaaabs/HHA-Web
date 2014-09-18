@@ -33,8 +33,8 @@ try {
         $view = new \Phalcon\Mvc\View();
         $view->setViewsDir( __DIR__.$config->application->viewsDir );
         $view->registerEngines(array(
-        ".volt" => 'volt',
-        ".phtml" => 'Phalcon\Mvc\View\Engine\Php'
+            ".phtml" => 'Phalcon\Mvc\View\Engine\Php',
+            ".volt" => 'volt'
         ));
         return $view;
     });
